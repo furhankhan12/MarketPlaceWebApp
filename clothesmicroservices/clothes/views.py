@@ -9,8 +9,8 @@ from django.contrib.auth.hashers import make_password
 def get_all_listings(request):
     listings = Listing.objects.all().values()
     listings_list = list(listings) 
-    if listing_list:
-        return JsonResponse(status=200, data=listing_list, safe=False) 
+    if listings_list:
+        return JsonResponse(status=200, data=listings_list, safe=False) 
     else:
         return JsonResponse(status=404, data={'message': 'no listings'})    
    
@@ -41,56 +41,61 @@ def new_listing(request):
         description = request.POST.get('description')
         seller = request.POST.get('seller_id')
         new_listing = Listing.objects.create(name=name, price=price, color=color, description=description, seller_id=seller)
-        # listing = Listing.objects.filter(pk=new_listing.pk).values()
     
+    # output after create
     return get_listing(request, new_listing.id)
-    # if listing:
-    #     return JsonResponse({'post status': 'success'})
-    # else: 
-    #     return JsonResponse({'post status': 'fail'})
         
 # update and display listing
 def update_listing(request, listing_id):
-    listing = Listing.objects.get(pk=listing_id)
-    print("we are inside the method")
-    if request.method == "POST":
-        name = request.POST.get('name')
-        if name: 
-            listing.name = name
-        price = request.POST.get('price')
-        if price:
-            listing.price = price
-        color = request.POST.get('color')
-        if color:
-            listing.color = color
-        description = request.POST.get('description')
-        if description:
-            listing.description = description
-        seller = request.POST.get('seller_id')
-        if seller:
-            listing.seller = seller
-        listing.save()
+    try: 
+        listing = Listing.objects.get(pk=listing_id)
+    except Listing.DoesNotExist: 
+        listing = None
+    
+    if not listing: 
+        return JsonResponse(status=404, data={'error code': 404, 'message': 'listing not found', 'id searched': listing_id})    
+    else:
+        if request.method == "POST":
+            name = request.POST.get('name')
+            if name: 
+                listing.name = name
+            price = request.POST.get('price')
+            if price:
+                listing.price = price
+            color = request.POST.get('color')
+            if color:
+                listing.color = color
+            description = request.POST.get('description')
+            if description:
+                listing.description = description
+            seller = request.POST.get('seller_id')
+            if seller:
+                listing.seller = seller
+            listing.save()
 
+    # output after update
     return get_listing(request, listing_id)
-    # new_listing = Listing.objects.filter(pk=listing_id).values()
-    # listing_list = list(new_listing)
-    # if listing_list:
-    #     return JsonResponse(status=200, data=listing_list, safe=False)
 
 def delete_listing(request, listing_id):
-    listing = Listing.objects.get(pk=listing_id)
-    if listing: 
+    try: 
+        listing = Listing.objects.get(pk=listing_id)
+    except Listing.DoesNotExist: 
+        listing = None
+    
+    if not listing: 
+        return JsonResponse(status=404, data={'error code': 404, 'message': 'listing not found', 'id searched': listing_id})    
+    else:
         listing.delete()
         return JsonResponse({'delete status': 'success'})
-    else: 
-        return JsonResponse({'delete status': 'fail', 'message': 'listing not found', 'id used': listing_id})
-
 
 ## ORDERS
 def get_all_orders(request):
     orders = Order.objects.all().values()
     orders_list = list(orders) 
-    return JsonResponse(orders_list, safe=False)
+    if orders_list:
+        return JsonResponse(status=200, data=orders_list, safe=False) 
+    else:
+        return JsonResponse(status=404, data={'message': 'no orders'}) 
 
 def get_order(request, order_id):
     order = Order.objects.filter(pk=order_id).values()
@@ -108,55 +113,61 @@ def new_order(request):
         deliveryMethod = request.POST.get('deliveryMethod')
         specialInstructions = request.POST.get('specialInstructions')
         new_order = Order.objects.create(buyer_id=buyer, listing_id=listing, deliveryMethod=deliveryMethod, specialInstructions=specialInstructions)
-        # order = Order.objects.filter(pk=new_order.pk).values()
     
+    # output after create
     return get_order(request, new_order.id)
-    # if order:
-    #     return JsonResponse({'post status': 'success'})
-    # else: 
-    #     return JsonResponse({'post status': 'fail'})  
 
 # update and display order
 def update_order(request, order_id):
-    order = Order.objects.get(pk=order_id)
-    if request.method == "POST":
-        buyer = request.POST.get('buyer_id')
-        if buyer:
-            order.buyer = buyer
-        listing = request.POST.get('listing_id')
-        if listing:
-            order.listing = listing    
-        date = request.POST.get('date')
-        if date:
-            order.date = date
-        deliveryMethod = request.POST.get('deliveryMethod')
-        if deliveryMethod:
-            order.deliveryMethod = deliveryMethod
-        specialInstructions = request.POST.get('specialInstructions')
-        if specialInstructions:
-            order.specialInstructions = specialInstructions
-        order.save()
+    try: 
+        order = Order.objects.get(pk=order_id)
+    except Order.DoesNotExist: 
+        order = None
 
+    if not order:
+        return JsonResponse(status=404, data={'error code': 404, 'message': 'order not found', 'id searched': order_id})        
+    else:
+        if request.method == "POST":
+            buyer = request.POST.get('buyer_id')
+            if buyer:
+                order.buyer = buyer
+            listing = request.POST.get('listing_id')
+            if listing:
+                order.listing = listing    
+            date = request.POST.get('date')
+            if date:
+                order.date = date
+            deliveryMethod = request.POST.get('deliveryMethod')
+            if deliveryMethod:
+                order.deliveryMethod = deliveryMethod
+            specialInstructions = request.POST.get('specialInstructions')
+            if specialInstructions:
+                order.specialInstructions = specialInstructions
+            order.save()
+    # output after update    
     return get_order(request, order_id)
-    # new_order = Order.objects.filter(pk=order_id).values()
-    # order_list = list(new_order)
-    # if order_list:
-    #     return JsonResponse(status=200, data=order_list, safe=False)
 
 # delete order
 def delete_order(request, order_id):
-    order = Order.objects.get(pk=order_id)
-    if order: 
+    try: 
+        order = Order.objects.get(pk=order_id)
+    except Order.DoesNotExist: 
+        order = None
+
+    if not order:
+        return JsonResponse(status=404, data={'error code': 404, 'message': 'order not found', 'id searched': order_id})        
+    else:
         order.delete()
         return JsonResponse({'delete status': 'success'})
-    else: 
-        return JsonResponse({'delete status': 'fail', 'message': 'order not found', 'id used': order_id})
 
 ## USERS
 def get_all_users(request):
     users = User.objects.all().values()
     users_list = list(users)
-    return JsonResponse(users_list, safe=False)    
+    if users_list:
+        return JsonResponse(status=200, data=users_list, safe=False) 
+    else:
+        return JsonResponse(status=404, data={'message': 'no users'})  
 
 def get_user(request, user_id):
     user = User.objects.filter(pk=user_id).values()
@@ -172,46 +183,50 @@ def new_user(request):
         username = request.POST.get('username')
         password = make_password(request.POST.get('password'))
         new_user = User.objects.create(username=username, password=password)
-        # user = User.objects.filter(pk=new_user.pk).values()
     
+    # output after create
     return get_user(request, new_user.id)
-    # if user:
-    #     return JsonResponse({'post status': 'success'})
-    # else: 
-    #     return JsonResponse({'post status': 'fail'})  
 
 # update and display listing
 def update_user(request, user_id):
-    user = User.objects.get(pk=user_id)
-    if request.method == "POST":
-        first_name = request.POST.get('first_name')
-        if first_name:
-            user.first_name = first_name
-        last_name = request.POST.get('last_name')
-        if last_name:
-            user.last_name = last_name    
-        email = request.POST.get('email')
-        if email:
-            user.email = email
-        is_superuser = request.POST.get('is_superuser')
-        if is_superuser:
-            user.is_superuser = is_superuser
-        is_staff = request.POST.get('is_staff')
-        if is_staff:
-            user.is_staff = is_staff
-        user.save()
+    try: 
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist: 
+        user = None
 
+    if not user:
+        return JsonResponse(status=404, data={'error code': 404, 'message': 'user not found', 'id searched': user_id})        
+    else:
+        if request.method == "POST":
+            first_name = request.POST.get('first_name')
+            if first_name:
+                user.first_name = first_name
+            last_name = request.POST.get('last_name')
+            if last_name:
+                user.last_name = last_name    
+            email = request.POST.get('email')
+            if email:
+                user.email = email
+            is_superuser = request.POST.get('is_superuser')
+            if is_superuser:
+                user.is_superuser = is_superuser
+            is_staff = request.POST.get('is_staff')
+            if is_staff:
+                user.is_staff = is_staff
+            user.save()
+
+    # output after update
     return get_user(request, user_id)
-    # new_user = User.objects.filter(pk=user_id).values()
-    # user_list = list(new_user)
-    # if user_list:
-    #     return JsonResponse(status=200, data=user_list, safe=False)
 
 def delete_user(request, user_id):
-    user = User.objects.get(pk=user_id)
-    if user: 
+    try: 
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist: 
+        user = None
+
+    if not user:
+        return JsonResponse(status=404, data={'error code': 404, 'message': 'user not found', 'id searched': user_id})        
+    else:
         user.delete()
         return JsonResponse({'delete status': 'success'})
-    else: 
-        return JsonResponse({'delete status': 'fail', 'message': 'user not found', 'id used': user_id})
 
