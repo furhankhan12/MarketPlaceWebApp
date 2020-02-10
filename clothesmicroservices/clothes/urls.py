@@ -2,9 +2,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('listings/', views.get_all_listings, name='listings_list'),
-    path('orders/', views.get_all_orders, name='orders_list'),
-    path('users/', views.get_all_users, name='users_list'),
+    path('listings', views.get_all_listings, name='listings_list'),
+    path('orders', views.get_all_orders, name='orders_list'),
+    path('users', views.get_all_users, name='users_list'),
 
     # get 
     path('listings/<int:listing_id>', views.get_listing, name='get_listing'),

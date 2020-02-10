@@ -7,7 +7,12 @@ from django.core import serializers
 def get_all_listings(request):
     listings = Listing.objects.all().values()
     listings_list = list(listings) 
-    return JsonResponse(status=200, data=listings_list, safe=False)
+    if listing_list:
+        return JsonResponse(status=200, data=listing_list, safe=False) 
+    else:
+        return JsonResponse(status=404, data={'message': 'no listings'})    
+    
+    # return JsonResponse(status=200, data=listings_list, safe=False)
    
 def get_listing(request, listing_id):
     listing = Listing.objects.filter(pk=listing_id).values()
@@ -43,7 +48,7 @@ def new_listing(request):
     else: 
         return JsonResponse({'post status': 'fail'})
         
-# update listing
+# update and display listing
 def update_listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
     print("we are inside the method")
@@ -65,10 +70,11 @@ def update_listing(request, listing_id):
             listing.seller = seller
         listing.save()
 
-    new_listing = Listing.objects.filter(pk=listing_id).values()
-    listing_list = list(new_listing)
-    if listing_list:
-        return JsonResponse(status=200, data=listing_list, safe=False)
+    return get_listing(request, listing_id)
+    # new_listing = Listing.objects.filter(pk=listing_id).values()
+    # listing_list = list(new_listing)
+    # if listing_list:
+    #     return JsonResponse(status=200, data=listing_list, safe=False)
 
 def delete_listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
@@ -76,7 +82,7 @@ def delete_listing(request, listing_id):
         listing.delete()
         return JsonResponse({'delete status': 'success'})
     else: 
-        return JsonResponse({'delete status': 'fail', 'reason':'listing does not exist'})
+        return JsonResponse({'delete status': 'fail', 'message': 'listing not found', 'id used': listing_id})
 
 def get_all_orders(request):
     orders = Order.objects.all().values()
