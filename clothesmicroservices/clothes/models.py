@@ -14,6 +14,7 @@ class Listing(models.Model):
 
 class Order(models.Model):
     id = models.AutoField(primary_key=True)
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE)
     buyer = models.ForeignKey(User, on_delete=models.CASCADE) # will not be using django users in the future
     date = models.DateTimeField(auto_now=True)
     deliveryMethod = models.TextField()
