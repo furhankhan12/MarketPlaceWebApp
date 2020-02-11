@@ -13,7 +13,8 @@ def get_all_listings(request):
         return JsonResponse(status=200, data=listings_list, safe=False) 
     else:
         return JsonResponse(status=404, data={'message': 'no listings'})    
-   
+
+ #Get a specific listing  
 def get_listing(request, listing_id):
     listing = Listing.objects.filter(pk=listing_id).values()
     listing_list = list(listing)
@@ -70,12 +71,13 @@ def update_listing(request, listing_id):
                 listing.description = description
             seller = request.POST.get('seller_id')
             if seller:
-                listing.seller = seller
+                listing.seller_id = seller
             listing.save()
 
     # output after update
     return get_listing(request, listing_id)
 
+#delete a specfic listing
 def delete_listing(request, listing_id):
     try: 
         listing = Listing.objects.get(pk=listing_id)
@@ -97,6 +99,7 @@ def get_all_orders(request):
     else:
         return JsonResponse(status=404, data={'message': 'no orders'}) 
 
+#return order with a pk
 def get_order(request, order_id):
     order = Order.objects.filter(pk=order_id).values()
     order_list = list(order)
@@ -113,9 +116,10 @@ def new_order(request):
         deliveryMethod = request.POST.get('deliveryMethod')
         specialInstructions = request.POST.get('specialInstructions')
         new_order = Order.objects.create(buyer_id=buyer, listing_id=listing, deliveryMethod=deliveryMethod, specialInstructions=specialInstructions)
-    
-    # output after create
-    return get_order(request, new_order.id)
+        return get_order(request, new_order.id)
+    else:
+        return JsonResponse(status=404, data={'error code': 404, 'message': 'invalid request'})    
+
 
 # update and display order
 def update_order(request, order_id):
@@ -130,10 +134,10 @@ def update_order(request, order_id):
         if request.method == "POST":
             buyer = request.POST.get('buyer_id')
             if buyer:
-                order.buyer = buyer
+                order.buyer_id = buyer
             listing = request.POST.get('listing_id')
             if listing:
-                order.listing = listing    
+                order.listing_id = listing    
             date = request.POST.get('date')
             if date:
                 order.date = date
@@ -218,6 +222,7 @@ def update_user(request, user_id):
     # output after update
     return get_user(request, user_id)
 
+#delete users
 def delete_user(request, user_id):
     try: 
         user = User.objects.get(pk=user_id)
