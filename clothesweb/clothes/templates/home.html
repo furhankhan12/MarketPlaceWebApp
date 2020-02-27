@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="text-align: center; padding-top:24px;">
+  <h2> Welcome to the home page of the application</h2>    
+  <p>Put a little menu in there just for some bootstrap exploration</p>
+  <p>This is the current time: {{ time }} UTC</p>
+  {% for i in range %}
+    <li>
+        <a href={% url 'item' pk=i %}>Item Number {{ i }}</a>
+    </li>
+  {% endfor %}
+</div>
+{% endblock %}
