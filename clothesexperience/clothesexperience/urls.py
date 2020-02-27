@@ -19,5 +19,5 @@ from clothes import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('listings', views.get_all_listings, name='listings_list'),
+    path('listings', views.get_all_listings, name='listings'),
 ]

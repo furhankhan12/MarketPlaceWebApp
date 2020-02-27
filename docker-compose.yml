@@ -21,8 +21,8 @@ services:
       - "8001:8000"
     volumes:
       - ./clothesmicroservices:/app
-    # command: bash -c "chmod 777 wait-for-it.sh && ./wait-for-it.sh -t 15 db:3306 -- python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py loaddata db_p2.json && mod_wsgi-express start-server --log-to-terminal --working-directory clothesmicroservices --reload-on-changes clothesmicroservices/wsgi.py"
-    command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py loaddata db_p2.json && mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesmicroservices/wsgi.py"
+    command: bash -c "chmod 777 wait-for-it.sh && ./wait-for-it.sh -t 15 db:3306 -- python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py loaddata db_p2.json && mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesmicroservices/wsgi.py"
+    # command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py loaddata db_p2.json && mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesmicroservices/wsgi.py"
 
   exp:
     image: tp33/django
@@ -34,7 +34,7 @@ services:
       - "8002:8000"
     volumes:
       - ./clothesexperience:/app
-    command: "mod_wsgi-express start-server --working-directory . --reload-on-changes clothesexperience/wsgi.py"
+    command: "mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesexperience/wsgi.py"
 
   web:
     image: tp33/django
