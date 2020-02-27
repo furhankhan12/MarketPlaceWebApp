@@ -78,10 +78,10 @@ WSGI_APPLICATION = 'clothesmicroservices.wsgi.application'
 DATABASES = {
     'default': {
           'ENGINE': 'django.db.backends.mysql',
-          'HOST': 'db', 
           'NAME': 'cs4501',
           'USER': 'www',
-          'PASSWORD': '$3cureUS',       
+          'PASSWORD': '$3cureUS',
+          'HOST': 'db',   
     }
 }
 
