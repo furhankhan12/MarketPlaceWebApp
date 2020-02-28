@@ -8,7 +8,9 @@
   {% if listings %}
     {% for item in listings %}
       <li>
-          <a href={% url 'item' pk=item.id %}>{{ item }}</a>
+        <a href={% url 'item' pk=item.id %}>{{ item.name }}</a>
+        <!-- <a href={% url 'item' pk=item.id %}>{{ item }}</a> -->
+          
       </li>
     {% endfor %}
   {% endif %}  

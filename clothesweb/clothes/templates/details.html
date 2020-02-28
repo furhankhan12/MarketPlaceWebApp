@@ -6,6 +6,7 @@
   {% if listing %}
     {% for item in listing %}
       <!-- <p>{{ listing }}</p> -->
+      <p>Everything: {{ item }}</p>
       <p>Name: {{ item.name }}</p>
       <p>Description: {{ item.description }}</p>
       <p>Price: {{ item.price }}</p>
@@ -13,5 +14,6 @@
       <p>Seller Id: {{ item.seller_id }}</p>
     {% endfor %}
   {% endif %}  
+  <a href={% url 'home' %}>Return to Home Page</a>
 </div>
 {% endblock %}
