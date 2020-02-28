@@ -3,7 +3,15 @@
 {% block content %}
 <div style="text-align: center; padding-top:24px;">
   <h2> Welcome to the details page of the application </h2>    
-  <p>This is the page for item with pk: {{ pk }}</p>
-  <p>This doesn't pull anything yet. It just exists with a hardcoded pk.</p>
+  {% if listing %}
+    {% for item in listing %}
+      <!-- <p>{{ listing }}</p> -->
+      <p>Name: {{ item.name }}</p>
+      <p>Description: {{ item.description }}</p>
+      <p>Price: {{ item.price }}</p>
+      <p>Color: {{ item.color }}</p>
+      <p>Seller Id: {{ item.seller_id }}</p>
+    {% endfor %}
+  {% endif %}  
 </div>
 {% endblock %}

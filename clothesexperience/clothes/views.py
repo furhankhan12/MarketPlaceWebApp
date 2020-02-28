@@ -15,6 +15,13 @@ def get_all_listings(request):
     # print(resp['ok'])
     return JsonResponse(resp)
 
+def get_listing(request, listing_id):
+    # note, no timeouts, error handling or all the other things needed to do this for real
+    req = urllib.request.Request('http://models:8000/api/v1/listings/' + str(listing_id))
+    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+    resp = json.loads(resp_json)
+    # print(resp['ok'])
+    return JsonResponse(resp)
 
 # make a POST request.
 # we urlencode the dictionary of values we're passing up and then make the POST request

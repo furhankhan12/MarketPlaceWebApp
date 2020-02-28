@@ -12,17 +12,25 @@ def get_all_listings(request):
     resp = json.loads(resp_json)
     return resp
 
+def get_listing(request, listing_id):
+    # note, no timeouts, error handling or all the other things needed to do this for real
+    url = 'http://exp:8000/listings/' + str(listing_id)
+    req = urllib.request.Request(url)
+    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+    resp = json.loads(resp_json)
+    return resp
+
 def home(request):
     listings_json = get_all_listings(request)
-    # listings_list = json.dumps(listings_json['listings'])
     listings_list = listings_json['listings']
-    # listings = list(listings_list)
-    print(listings_json)
     time = datetime.now()
-    # if 'ok':'true',
-    return render(request, 'home.html', {'time':time, 'range':range(5), 'listings':listings_list})
-
+    if listings_json['ok']:
+        return render(request, 'home.html', {'time':time, 'listings':listings_list})
+    # else:
 
 def item(request, pk):
     # time = datetime.now()
-    return render(request, 'details.html', {'pk':pk})
+    listing_json = get_listing(request, pk)
+    listing_list = listing_json['listing']
+    if listing_json['ok']:
+        return render(request, 'details.html', {'listing':listing_list})
