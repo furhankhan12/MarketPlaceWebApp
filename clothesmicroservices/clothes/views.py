@@ -4,15 +4,17 @@ from .models import Listing, Order, User
 from django.shortcuts import get_object_or_404
 from django.core import serializers
 from django.contrib.auth.hashers import make_password
+import json
 
 ## LISTINGS
 def get_all_listings(request):
     listings = Listing.objects.all().values()
     listings_list = list(listings) 
-    if listings_list:
-        return JsonResponse(status=200, data=listings_list, safe=False) 
+    listings_dict = {'ok':'true', 'listings': listings_list}
+    if listings_dict:
+        return JsonResponse(status=200, data=listings_dict) 
     else:
-        return JsonResponse(status=404, data={'message': 'no listings'})    
+        return JsonResponse(status=404, data={'ok':'false','error code': 404, 'message': 'no listings'})    
 
  #Get a specific listing  
 def get_listing(request, listing_id):

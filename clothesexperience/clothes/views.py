@@ -9,11 +9,11 @@ from django.http import JsonResponse, HttpResponse
 
 def get_all_listings(request):
     # note, no timeouts, error handling or all the other things needed to do this for real
-    req = urllib.request.Request('http://localhost:8001/api/v1/listings')
+    req = urllib.request.Request('http://models:8000/api/v1/listings')
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
-    print(resp)
-    return resp
+    # print(resp['ok'])
+    return JsonResponse(resp)
 
 
 # make a POST request.

@@ -5,10 +5,14 @@
   <h2> Welcome to the home page of the application</h2>    
   <p>Put a little menu in there just for some bootstrap exploration</p>
   <p>This is the current time: {{ time }} UTC</p>
-  {% for i in range %}
-    <li>
-        <a href={% url 'item' pk=i %}>Item Number {{ i }}</a>
-    </li>
-  {% endfor %}
+  {% if listings %}
+    {% for item in listings %}
+      <li>
+          <!-- <a href={% url 'item' pk=1 %}>Item Number {{ 1 }}</a> -->
+          <p>{{ item }}</p>
+          <!-- <p>{{listing.items}}</p> -->
+      </li>
+    {% endfor %}
+  {% endif %}  
 </div>
 {% endblock %}
