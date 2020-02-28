@@ -1,0 +1,53 @@
+version: "3"
+services:
+
+  # db: 
+  #   image: mysql
+  #   environment: 
+  #     - MYSQL_DATABASE=cs4501
+  #     - MYSQL_USER=www
+  #     - MYSQL_PASSWORD=$$3cureUS
+  #     - MYSQL_ROOT_PASSWORD=$$3cureUS
+      
+  models:
+    image: tp33/django
+    container_name: models
+    external_links:
+      - mysql:db
+    networks:
+      - backend
+      - service_mesh
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./clothesmicroservices:/app
+    command: bash -c "chmod 777 wait-for-it.sh && ./wait-for-it.sh -t 15 db:3306 -- python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py loaddata db_p2.json && mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesmicroservices/wsgi.py"
+    # command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py loaddata db_p2.json && mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesmicroservices/wsgi.py"
+
+  exp:
+    image: tp33/django
+    container_name: exp
+    networks:
+      - service_mesh
+      - public
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./clothesexperience:/app
+    command: "mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesexperience/wsgi.py"
+
+  web:
+    image: tp33/django
+    container_name: web
+    networks:
+      - public
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./clothesweb:/app
+    command: "mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesweb/wsgi.py"
+
+networks:
+  backend:
+  service_mesh:
+  public:
