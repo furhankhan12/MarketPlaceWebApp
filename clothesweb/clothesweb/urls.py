@@ -20,5 +20,6 @@ from clothes import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('home/', views.home, name='home'), 
-    path('item/<int:pk>', views.item, name='item')
+    path('item/<int:pk>', views.item, name='item'),
+    path('search/results/',views.search_results, name='search'),
 ]

@@ -23,6 +23,25 @@ def get_listing(request, listing_id):
     # print(resp['ok'])
     return JsonResponse(resp)
 
+#Filter results based on what is entered in the search bar 
+def get_searchResults(request, query):
+    req = urllib.request.Request('http://models:8000/api/v1/listings')
+    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+    resp = json.loads(resp_json)
+    listings = resp['listings']
+    return_resp = []
+    for listing in listings:
+        description = str(listing['description']).lower().split()
+        query_split = query.split()
+        for search_term in query_split:
+            search_term = str(search_term).lower()
+            if search_term in description:
+                return_resp.append(listing)
+    resp['listings'] = return_resp
+    return JsonResponse(resp)
+
+
+
 # make a POST request.
 # we urlencode the dictionary of values we're passing up and then make the POST request
 # again, no error handling

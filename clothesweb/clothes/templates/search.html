@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="text-align: center; padding-top:24px;">
+  {% if listings %}
+    {% for item in listings %}
+      <li>
+        <a href={% url 'item' pk=item.id %}>{{ item.name }}</a>
+        <!-- <a href={% url 'item' pk=item.id %}>{{ item }}</a> -->
+      </li>
+    {% endfor %}
+    {% else %}
+  <h1> No listings found</h1> 
+  {% endif %} 
+</div>
+{% endblock %}
