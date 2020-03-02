@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-
 {% block content %}
+<!--
 <div style="text-align: center; padding-top:24px;">
   <h2> Welcome to the home page of the application</h2>    
   <p>Put a little menu in there just for some bootstrap exploration</p>
@@ -9,10 +9,232 @@
     {% for item in listings %}
       <li>
         <a href={% url 'item' pk=item.id %}>{{ item.name }}</a>
+      -->
         <!-- <a href={% url 'item' pk=item.id %}>{{ item }}</a> -->
-          
+      <!--
       </li>
     {% endfor %}
   {% endif %}  
-</div>
+    </div>
+  -->
+  <!DOCTYPE html>
+  
+  <style>
+  .button {
+  display: inline-block;
+  padding: 10px 18px;
+  margin-bottom: 10px;
+  background: #EEE;
+  border: none;
+  border-radius: 7px;
+  background-image: linear-gradient( to bottom, hsla(0, 0%, 0%, 0), hsla(0, 0%, 0%, 0.2) );
+  color: #222;
+  font-family: sans-serif;
+  font-size: 16px;
+  text-shadow: 0 1px white;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #8CF;
+  text-shadow: 0 1px hsla(0, 0%, 100%, 0.5);
+  color: #222;
+}
+
+.button:active,
+.button.is-checked {
+  background-color: #28F;
+}
+
+.button.is-checked {
+  color: white;
+  text-shadow: 0 -1px hsla(0, 0%, 0%, 0.8);
+}
+
+.button:active {
+  box-shadow: inset 0 1px 10px hsla(0, 0%, 0%, 0.8);
+}
+
+.grid {
+  border: 1px solid #333;
+  margin: 0px 0px 0px px;
+}
+
+/* clear fix */
+.grid:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+.element-item {
+  position: relative;
+  height: 400px;
+  padding: 10px;
+  width: 222px;
+  justify-content: center;
+}
+
+.element-item > * {
+  margin: 0;
+  padding: 0;
+}
+</style>
+  <html lang="en">
+  
+  <head>
+  
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+  
+    <title>Clothing Marketplace</title>
+  
+    <!-- Bootstrap core CSS -->
+  
+    <!-- Custom styles for this template -->
+
+  
+  </head>
+  
+  <body>  
+    <!-- Page Content -->
+    <div class="container">
+      
+      <!-- Jumbotron Header -->
+      <header class="jumbotron my-4">
+        <h1 class="display-3">Welcome!</h1>
+        <p class="lead">To our clothing marketplace app</p>
+        <button class="button">Login</button>
+      </header>
+  
+      <!-- Page Features -->
+      <div class="button-group filters-button-group text-center">
+          <button class="button is-checked" data-filter="*">show all</button>
+          <button class="button" data-filter=".20">price</button> <!-- just to check if filter works-->
+          <div class="btn-group" role="group">
+          <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Price
+          </button>
+            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+              <a class="dropdown-item" data-filter=".price10">$0-$10</a>
+              <a class="dropdown-item" data-filter=".price1020">$10-$20</a>
+              <a class="dropdown-item" data-filter=".price20">>$20</a>
+            </div>
+          </div>
+          <div class="btn-group" role="group">
+          <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Color
+          </button>
+            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+              <a class="dropdown-item" data-filter=".red" >red</a>
+              <a class="dropdown-item" data-filter=".yellow">yellow</a>
+              <a class="dropdown-item" data-filter=".blue">blue</a>
+              <a class="dropdown-item" data-filter=".green">green</a>
+            </div>
+          </div>
+          <!--
+          <button class="button" data-filter=":not(.transition)">not transition</button>
+          <button class="button" data-filter=".metal:not(.transition)">metal but not transition</button>
+          <button class="button" data-filter="numberGreaterThan50">number > 50</button>
+          <button class="button" data-filter="ium">name ends with &ndash;ium</button>
+          -->
+      </div>
+      <div class="grid">
+ 
+      {% if not listings %}
+      <br>
+      <h5 class="text-center">NO RESULTS FOUND</h5>
+      {% endif %}
+      {% for item in listings %}
+        <div class='element-item {% if item.price >= 20 %}price20{% endif %}{% if 10 > item.price %}price10{% endif %}{% if item.price > 10 and 20 > item.price %}price1020{% endif %}'>
+          <div class="card h-100 text-center">
+            <img class="card-img-top" src="http://placehold.it/500x325" alt="">
+            <div class="card-body">
+              <h4 class="card-title">{{ item.name }}</h4>
+              <p class="card-text">{{item.color}}</p>
+              <p class="card-text">{{item.description |slice:":25"}}...</p>
+            </div>
+            <div class="card-footer">
+              <a href="{% url 'item' pk=item.id %}" class="btn btn-primary">Find Out More!</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+      <!-- /.row -->
+  
+    </div>
+  </div>
+    <!-- /.container -->
+  
+    <!-- Bootstrap core JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.js"></script>
+
+    <script>
+        // external js: isotope.pkgd.js
+        var $grid = $('.grid').isotope({
+          itemSelector: '.element-item',
+          layoutMode: 'fitRows',
+          sortAscending : {
+              name: true,
+          },
+          getSortData: {
+            name: '.name',
+            named: '.name',
+            price: '.price parseInt',
+            priced: '.price parseInt',
+            color: '.color',
+        
+          }
+        });
+        
+        // filter functions
+        var filterFns = {
+          // show if number is greater than 50
+          numberGreaterThan20: function() {
+            var number = $(this).find('.price').text();
+            return parseInt( number, 10 ) > 20;
+          },
+          // show if name ends with -ium
+          /*
+          ium: function() {
+            var name = $(this).find('.name').text();
+            return name.match( /ium$/ );
+          }
+          */
+        };
+        
+        // bind filter button click
+        $('#filters').on( 'click', 'button', function() {
+          var filterValue = $( this ).attr('data-filter');
+          // use filterFn if matches value
+          filterValue = filterFns[ filterValue ] || filterValue;
+          $grid.isotope({ filter: filterValue });
+        });
+        
+        // bind sort button click
+        $('#sorts').on( 'click', 'button', function() {
+          var sortByValue = $(this).attr('data-sort-by');
+          $grid.isotope({ sortBy: sortByValue });
+        });
+        
+        // change is-checked class on buttons
+        $('.button-group').each( function( i, buttonGroup ) {
+          var $buttonGroup = $( buttonGroup );
+          $buttonGroup.on( 'click', 'button', function() {
+            $buttonGroup.find('.is-checked').removeClass('is-checked');
+            $( this ).addClass('is-checked');
+          });
+        });
+        
+        // init Isotope
+    </script>
+  
+  </body>
+  
+  </html>
 {% endblock %}
