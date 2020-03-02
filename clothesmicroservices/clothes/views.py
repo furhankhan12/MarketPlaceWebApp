@@ -179,77 +179,77 @@ def delete_order(request, order_id):
         return JsonResponse({'ok':True, 'delete status': 'success'})
 
 ## USERS
-def get_all_users(request):
-    users = User.objects.all().values()
-    users_list = list(users)
-    users_dict = {'ok':True, 'users': users_list}
-    if users_dict:
-        return JsonResponse(data=users_dict) 
-    else:
-        return JsonResponse(data={'ok':False, 'message': 'users not found'})  
+# def get_all_users(request):
+#     users = User.objects.all().values()
+#     users_list = list(users)
+#     users_dict = {'ok':True, 'users': users_list}
+#     if users_dict:
+#         return JsonResponse(data=users_dict) 
+#     else:
+#         return JsonResponse(data={'ok':False, 'message': 'users not found'})  
 
 def get_user(request, user_id):
     user = User.objects.filter(pk=user_id).values()
     user_list = list(user)
     user_dict = {'ok':True, 'user': user_list}
     if user_list:
-        return JsonResponse(data=user_list) 
+        return JsonResponse(data=user_dict) 
     else:
         return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})    
     
 # new user
-def new_user(request):
-    if request.method == "POST":
-        username = request.POST.get('username')
-        password = make_password(request.POST.get('password'))
-        new_user = User.objects.create(username=username, password=password)
-        # output after create
-        return get_user(request, new_user.id)
-    else:
-        return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
+# def new_user(request):
+#     if request.method == "POST":
+#         username = request.POST.get('username')
+#         password = make_password(request.POST.get('password'))
+#         new_user = User.objects.create(username=username, password=password)
+#         # output after create
+#         return get_user(request, new_user.id)
+#     else:
+#         return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
 
 # update and display listing
-def update_user(request, user_id):
-    try: 
-        user = User.objects.get(pk=user_id)
-    except User.DoesNotExist: 
-        user = None
+# def update_user(request, user_id):
+#     try: 
+#         user = User.objects.get(pk=user_id)
+#     except User.DoesNotExist: 
+#         user = None
 
-    if not user:
-        return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})        
-    else:
-        if request.method == "POST":
-            first_name = request.POST.get('first_name')
-            if first_name:
-                user.first_name = first_name
-            last_name = request.POST.get('last_name')
-            if last_name:
-                user.last_name = last_name    
-            email = request.POST.get('email')
-            if email:
-                user.email = email
-            is_superuser = request.POST.get('is_superuser')
-            if is_superuser:
-                user.is_superuser = is_superuser
-            is_staff = request.POST.get('is_staff')
-            if is_staff:
-                user.is_staff = is_staff
-            user.save()
-            # output after update
-            return get_user(request, user_id)
-        else:
-            return JsonResponse(data={'ok':False, 'message': 'invalid request'})    
+#     if not user:
+#         return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})        
+#     else:
+#         if request.method == "POST":
+#             first_name = request.POST.get('first_name')
+#             if first_name:
+#                 user.first_name = first_name
+#             last_name = request.POST.get('last_name')
+#             if last_name:
+#                 user.last_name = last_name    
+#             email = request.POST.get('email')
+#             if email:
+#                 user.email = email
+#             is_superuser = request.POST.get('is_superuser')
+#             if is_superuser:
+#                 user.is_superuser = is_superuser
+#             is_staff = request.POST.get('is_staff')
+#             if is_staff:
+#                 user.is_staff = is_staff
+#             user.save()
+#             # output after update
+#             return get_user(request, user_id)
+#         else:
+#             return JsonResponse(data={'ok':False, 'message': 'invalid request'})    
 
 #delete users
-def delete_user(request, user_id):
-    try: 
-        user = User.objects.get(pk=user_id)
-    except User.DoesNotExist: 
-        user = None
+# def delete_user(request, user_id):
+#     try: 
+#         user = User.objects.get(pk=user_id)
+#     except User.DoesNotExist: 
+#         user = None
 
-    if not user:
-        return JsonResponse(data={'ok':False,'message': 'user not found', 'id searched': user_id, 'delete status': 'failure'})        
-    else:
-        user.delete()
-        return JsonResponse({'ok':True, 'delete status': 'success'})
+#     if not user:
+#         return JsonResponse(data={'ok':False,'message': 'user not found', 'id searched': user_id, 'delete status': 'failure'})        
+#     else:
+#         user.delete()
+#         return JsonResponse({'ok':True, 'delete status': 'success'})
 

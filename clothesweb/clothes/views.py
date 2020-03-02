@@ -51,4 +51,5 @@ def search_results(request):
             return redirect('/home/')
     return render('search.html',{'listings':{}})
 
+
     

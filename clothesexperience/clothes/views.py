@@ -42,6 +42,8 @@ def get_searchResults(request, query):
 
 
 
+
+
 # make a POST request.
 # we urlencode the dictionary of values we're passing up and then make the POST request
 # again, no error handling
