@@ -14,9 +14,9 @@ urlpatterns = [
     path('orders/<int:order_id>/update', views.update_order, name='update_order'),
     path('orders/new', views.new_order, name='new_order'),
 
-    path('users', views.get_all_users, name='users_list'),
+    # path('users', views.get_all_users, name='users_list'),
     path('users/<int:user_id>', views.get_user, name='get_user'),
-    path('users/<int:user_id>/delete', views.delete_user, name='delete_user'),
-    path('users/<int:user_id>/update', views.update_user, name='update_user'),
-    path('users/new', views.new_user, name='new_user'),
+    # path('users/<int:user_id>/delete', views.delete_user, name='delete_user'),
+    # path('users/<int:user_id>/update', views.update_user, name='update_user'),
+    # path('users/new', views.new_user, name='new_user'),
 ]
