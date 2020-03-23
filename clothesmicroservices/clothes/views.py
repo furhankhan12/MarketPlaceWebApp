@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
-from .models import Listing, Order, User
+from .models import Listing, Order, User, Authenticator
 from django.shortcuts import get_object_or_404
 from django.core import serializers
-from django.contrib.auth.hashers import make_password
-import json
+from django.contrib.auth.hashers import make_password, check_password
+import json, os, hmac
+from django.conf import settings
 
 ## LISTINGS
 def get_all_listings(request):
@@ -176,9 +177,76 @@ def delete_order(request, order_id):
         return JsonResponse(data={'ok':False, 'message': 'order not found', 'id searched': order_id, 'delete status': 'failure'})        
     else:
         order.delete()
-        return JsonResponse({'ok':True, 'delete status': 'success'})
+        return JsonResponse(data={'ok':True, 'delete status': 'success'})
 
 ## USERS
+def create_account(request):
+    if request.method == "POST":
+        salt = hmac.new(
+                key = settings.SECRET_KEY.encode('utf-8'),
+                msg = os.urandom(32),
+                digestmod = 'sha256',
+            ).hexdigest()
+        username = request.POST.get('username')
+        password = make_password(request.POST.get('password'), salt=salt)
+        firstName = request.POST.get('firstName')
+        lastName = request.POST.get('lastName')
+        emailAddress = request.POST.get('emailAddress')
+
+        user = User.objects.filter(username=username).first()
+        if not user:
+            new_user = User.objects.create(username=username, password=password, firstName=firstName, lastName=lastName, emailAddress=emailAddress)
+        # output after create
+        # login(request)
+            return JsonResponse(data={'ok':True, 'message': 'account created'}) 
+        else:
+            return JsonResponse(data={'ok':False, 'message': 'username already exists'}) 
+    else:
+        return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
+
+def login(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = User.objects.filter(username=username).first()
+        if user:
+            valid = check_password(password, user.password)
+            if valid:
+                authenticator = hmac.new(
+                    key = settings.SECRET_KEY.encode('utf-8'),
+                    msg = os.urandom(32),
+                    digestmod = 'sha256',
+                ).hexdigest()
+                # user_id = user.id
+                auth = Authenticator.objects.create(user_id=user, authenticator=authenticator)
+                return JsonResponse(data={'ok':True, 'auth': auth.authenticator, 'login status': 'success'})
+            else: 
+                return JsonResponse(data={'ok':False, 'login status': 'incorrect username or password'})
+        else:
+            return JsonResponse(data={'ok':False, 'message': 'incorrect username or password'})
+    else:
+        return JsonResponse(data={'ok':False, 'message': 'invalid request'})       
+
+def logout(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        user = User.objects.filter(username=username).first()
+        auth = Authenticator.objects.filter(user_id=user).first()
+
+        if not auth:
+            return JsonResponse(data={'ok':False, 'message': 'not logged in', 'logout status': 'failure'})
+        else: 
+            auth.delete()
+            return JsonResponse(data={'ok':True, 'logout status': 'success'})
+    else:
+        return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
+    
+def user_is_authenticated(username):
+    user = User.objects.filter(username=username)
+    auth = Authenticator.objects.filter(user_id=user.id)
+    return auth
+
 # def get_all_users(request):
 #     users = User.objects.all().values()
 #     users_list = list(users)

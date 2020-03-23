@@ -29,6 +29,7 @@ ALLOWED_HOSTS = [
     'models', 'localhost'
 ]
 
+AUTH_USER_MODEL = 'clothes.User'
 
 # Application definition
 
