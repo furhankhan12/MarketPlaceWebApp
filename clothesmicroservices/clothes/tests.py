@@ -2,6 +2,7 @@ from django.test import TestCase
 # from django.contrib.auth.models import User
 from .models import Listing, Order, User, Authenticator
 from django.urls import reverse
+import json
 # Create your tests here.
 
 # name = models.CharField(max_length=40)
@@ -401,8 +402,10 @@ class logoutTestCase(TestCase):
             'username': 'testusername',
             'password' : 'testpassword',
         })
+        json_login = json.loads(str(login.content, encoding='utf8'))
+       
         response = self.client.post(reverse('logout'), data = {
-            'username': 'testusername'
+            'auth': json_login['auth'],
         })
         
         self.assertContains(response,"success")

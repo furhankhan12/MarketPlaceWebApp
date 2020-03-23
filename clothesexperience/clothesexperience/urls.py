@@ -23,4 +23,6 @@ urlpatterns = [
     path('listings/<int:listing_id>', views.get_listing, name='get_listing'),
     path('search/<slug:query>',views.get_searchResults,name='search'),
     path('users/signup',views.create_account, name='create_account'),
+    path('users/login',views.login,name = 'login'),
+    path('users/logout',views.logout,name='logout'),
 ]

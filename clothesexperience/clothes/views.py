@@ -81,10 +81,24 @@ def login(request):
         req = urllib.request.Request('http://models:8000/api/v1/users/login')
         with urllib.request.urlopen(req,data=data) as f:
             resp_json = json.loads(f.read().decode('utf-8'))  
-        if resp_json['ok']:
-            return resp_json['auth']
-        else:
-            return JsonResponse(data = resp_json)
+        return JsonResponse(data = resp_json)
+
+def logout(request):
+    if request.method == "POST":
+        auth = request.POST.get('auth')
+        auth_data = [
+        ('auth',auth),
+        ]
+        data = urllib.parse.urlencode(auth_data).encode("utf-8")
+        req = urllib.request.Request('http://models:8000/api/v1/users/logout')
+        with urllib.request.urlopen(req,data=data) as f:
+            resp_json = json.loads(f.read().decode('utf-8'))  
+        return JsonResponse(data = resp_json)
+    else:
+        return JsonResponse(data={'ok':True, 'message': 'Invalid request'}) 
+
+
+
 
 
 

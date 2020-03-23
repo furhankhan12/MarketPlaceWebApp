@@ -2,8 +2,9 @@ from django.shortcuts import render,redirect
 from datetime import datetime
 import urllib.request, json
 import urllib.parse
-from django.http import JsonResponse, HttpResponse
-from .forms import SignUpForm
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+from .forms import SignUpForm, LoginForm
+from django.contrib import messages 
 # Create your views here.
 
 def get_all_listings(request):
@@ -54,6 +55,7 @@ def search_results(request):
 
 def create_account(request):
     form = SignUpForm()
+    
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -76,9 +78,57 @@ def create_account(request):
                 print(resp)
                 if resp['ok']==True:
                     return redirect('/home')
+                else:
+                    messages.error(request, resp['message'])
                 
         
     return render(request, 'signup.html', {'form': form})
+
+def login(request):
+    form = LoginForm()
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            form_data = form.cleaned_data
+            account_data = [
+            ('username',form_data['username']),
+            ('password',form_data['password']),
+        ]
+            # req = urllib.request.Request('http://exp:8000/users/signup',data= urllib.parse.urlencode(account_data).encode("utf-8"))
+            # resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+            # resp = json.loads(resp_json)
+            # print(resp)
+            data = urllib.parse.urlencode(account_data).encode("utf-8")
+            req = urllib.request.Request('http://exp:8000/users/login')
+            with urllib.request.urlopen(req,data=data) as f:
+                resp = json.loads(f.read().decode('utf-8'))
+                if resp['ok']==True:
+                    authenticator = resp['auth']
+                    response = HttpResponseRedirect('/home')
+                    response.set_cookie("auth", authenticator)
+                    print(resp)
+                    return response
+                else:
+                    messages.error(request, resp['message'])
+        
+    return render(request, 'signup.html', {'form': form})
+def logout(request):
+    auth = request.COOKIES.get('auth') 
+    auth_data = [
+        ('auth',auth),
+    ]
+    data = urllib.parse.urlencode(auth_data).encode("utf-8")
+    req = urllib.request.Request('http://exp:8000/users/logout')
+    with urllib.request.urlopen(req,data=data) as f:
+        resp_json = json.loads(f.read().decode('utf-8'))  
+    if resp_json['ok']:
+        response = HttpResponseRedirect('/home')
+        response.delete_cookie('auth')
+        return response
+    else:
+        messages.error(request,resp_json['message'])
+    return render(request,'home.html')
+
 
 
 

@@ -280,7 +280,7 @@ def login(request):
                     digestmod = 'sha256',
                 ).hexdigest()
                 # user_id = user.id
-                auth = Authenticator.objects.create(user_id=user, authenticator=authenticator)
+                auth = Authenticator.objects.create(user_id=user.id, authenticator=authenticator)
                 return JsonResponse(data={'ok':True, 'auth': auth.authenticator, 'login status': 'success'})
             else: 
                 return JsonResponse(data={'ok':False, 'login status': 'incorrect username or password'})
@@ -291,10 +291,8 @@ def login(request):
 
 def logout(request):
     if request.method == "POST":
-        username = request.POST.get('username')
-        user = User.objects.filter(username=username).first()
-        auth = Authenticator.objects.filter(user_id=user).first()
-
+        auth_token = request.POST.get('auth')
+        auth = Authenticator.objects.filter(authenticator=auth_token).first()
         if not auth:
             return JsonResponse(data={'ok':False, 'message': 'not logged in', 'logout status': 'failure'})
         else: 
@@ -302,7 +300,7 @@ def logout(request):
             return JsonResponse(data={'ok':True, 'logout status': 'success'})
     else:
         return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
-    
+  
 def user_is_authenticated(username):
     user = User.objects.filter(username=username)
     auth = Authenticator.objects.filter(user_id=user.id)

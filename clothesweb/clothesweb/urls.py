@@ -23,5 +23,6 @@ urlpatterns = [
     path('item/<int:pk>', views.item, name='item'),
     path('search/results/',views.search_results, name='search'),
     path('users/signup/',views.create_account, name='create_account'),
+    path('users/login',views.login,name='login'),
+    path('users/logout',views.logout,name='logout'),
 ]
-    
