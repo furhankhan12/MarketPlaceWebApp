@@ -15,7 +15,7 @@ class User(AbstractBaseUser):
 
 class Authenticator(models.Model):
     authenticator = models.CharField(primary_key=True, max_length=64)
-    user_id = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_id = models.IntegerField()
     date_created = models.DateTimeField(auto_now=True)
 
 class Address(models.Model):

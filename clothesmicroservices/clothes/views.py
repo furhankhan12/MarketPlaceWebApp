@@ -279,7 +279,7 @@ def login(request):
                     digestmod = 'sha256',
                 ).hexdigest()
                 # user_id = user.id
-                auth = Authenticator.objects.create(user_id=user, authenticator=authenticator)
+                auth = Authenticator.objects.create(user_id=user.id, authenticator=authenticator)
                 return JsonResponse(data={'ok':True, 'auth': auth.authenticator, 'login status': 'success'})
             else: 
                 return JsonResponse(data={'ok':False, 'login status': 'incorrect username or password'})
@@ -290,10 +290,8 @@ def login(request):
 
 def logout(request):
     if request.method == "POST":
-        username = request.POST.get('username')
-        user = User.objects.filter(username=username).first()
-        auth = Authenticator.objects.filter(user_id=user).first()
-
+        auth_token = request.POST.get('auth')
+        auth = Authenticator.objects.filter(authenticator=auth_token).first()
         if not auth:
             return JsonResponse(data={'ok':False, 'message': 'not logged in', 'logout status': 'failure'})
         else: 
@@ -301,14 +299,52 @@ def logout(request):
             return JsonResponse(data={'ok':True, 'logout status': 'success'})
     else:
         return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
-    
+  
+def user_is_authenticated(username):
+    user = User.objects.filter(username=username)
+    auth = Authenticator.objects.filter(user_id=user.id)
+    return auth
+# update and display listing
+# def update_user(request, user_id):
+#     try: 
+#         user = User.objects.get(pk=user_id)
+#     except User.DoesNotExist: 
+#         user = None
 
-# def get_all_users(request):
-#     users = User.objects.all().values()
-#     users_list = list(users)
-#     users_dict = {'ok':True, 'users': users_list}
-#     if users_dict:
-#         return JsonResponse(data=users_dict) 
+#     if not user:
+#         return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})        
+#     else:
+#         if request.method == "POST":
+#             first_name = request.POST.get('first_name')
+#             if first_name:
+#                 user.first_name = first_name
+#             last_name = request.POST.get('last_name')
+#             if last_name:
+#                 user.last_name = last_name    
+#             email = request.POST.get('email')
+#             if email:
+#                 user.email = email
+#             is_superuser = request.POST.get('is_superuser')
+#             if is_superuser:
+#                 user.is_superuser = is_superuser
+#             is_staff = request.POST.get('is_staff')
+#             if is_staff:
+#                 user.is_staff = is_staff
+#             user.save()
+#             # output after update
+#             return get_user(request, user_id)
+#         else:
+#             return JsonResponse(data={'ok':False, 'message': 'invalid request'})    
+
+#delete users
+# def delete_user(request, user_id):
+#     try: 
+#         user = User.objects.get(pk=user_id)
+#     except User.DoesNotExist: 
+#         user = None
+
+#     if not user:
+#         return JsonResponse(data={'ok':False,'message': 'user not found', 'id searched': user_id, 'delete status': 'failure'})        
 #     else:
 #         return JsonResponse(data={'ok':False, 'message': 'users not found'})  
        
