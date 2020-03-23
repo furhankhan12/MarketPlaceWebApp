@@ -482,3 +482,129 @@ class UpdateAddressTestCase(TestCase):
     def test_fail(self):
         response = self.client.get(reverse('update_address', kwargs={'address_id':500}))
         self.assertContains(response,'not found')
+
+
+class GetProfileTestCase(TestCase):
+    def test_success(self):
+        test_user1 = User.objects.create(
+            username= 'testusername',
+            password = 'testpassword',
+            firstName = 'test',
+            lastName = 'user 1', 
+            emailAddress = '123@gmail.com'
+        )
+        test_address1 = Address.objects.create(
+            street1 = "123 Street Road",
+            street2 = "",
+            city = "Charlottesville",
+            state = "VA",
+            zipCode = 22903
+        )
+        test_profile1 = Profile.objects.create(
+            user = test_user1,
+            shippingAddress = test_address1, 
+            phoneNumber = '123-1234-1234'
+        )
+        response = self.client.get(reverse('get_profile', kwargs={'profile_id':test_profile1.pk}))
+        self.assertContains(response,"123-1234-1234")
+    def test_fail(self):
+        response = self.client.get(reverse('get_profile',kwargs={'profile_id':100}))
+        self.assertContains(response,'profile not found')
+
+class NewProfileTestCase(TestCase):
+    def test_success(self):
+        test_user1 = User.objects.create(
+            username= 'testusername',
+            password = 'testpassword',
+            firstName = 'test',
+            lastName = 'user 1', 
+            emailAddress = '123@gmail.com'
+        )
+        test_address1 = Address.objects.create(
+            street1 = "123 Street Road",
+            street2 = "",
+            city = "Charlottesville",
+            state = "VA",
+            zipCode = 22903
+        )
+        response = self.client.post(reverse('new_profile', kwargs={'user_id':test_user1.pk}),
+            data={
+                'user_id':test_user1.pk,
+                'shippingAddress_id':test_address1.pk,
+                'phoneNumber':"123-1234-1234"
+            })
+        #Response returns get from db with the new item 
+        self.assertContains(response,'123-1234-1234')
+
+    def test_fail(self):
+        response = self.client.get(reverse('new_profile', kwargs={'user_id':500}))
+        self.assertContains(response,'user not found')
+
+class UpdateProfileTestCase(TestCase):
+    def test_success(self):
+        test_user1 = User.objects.create(
+            username= 'testusername',
+            password = 'testpassword',
+            firstName = 'test',
+            lastName = 'user 1', 
+            emailAddress = '123@gmail.com'
+        )
+        test_address1 = Address.objects.create(
+            street1 = "123 Street Road",
+            street2 = "",
+            city = "Charlottesville",
+            state = "VA",
+            zipCode = 22903
+        )
+        test_profile1 = Profile.objects.create(
+            user_id = test_user1.pk,
+            shippingAddress_id = test_address1.pk,
+            phoneNumber = "123-1234-1234"
+        )
+        response = self.client.post(reverse('update_profile',kwargs={'profile_id':test_profile1.pk}), 
+            data={'phoneNumber':'234-2345-2345'})
+        #Response returns get from db with the new item 
+        self.assertContains(response,'234-2345-2345')
+
+    def test_fail(self):
+        response = self.client.get(reverse('update_profile', kwargs={'profile_id':500}))
+        self.assertContains(response,'not found')
+
+class UpdateProfileTestCase2(TestCase):
+    def test_success(self):
+        test_user1 = User.objects.create(
+            username= 'testusername',
+            password = 'testpassword',
+            firstName = 'test',
+            lastName = 'user 1', 
+            emailAddress = '123@gmail.com'
+        )
+        test_address1 = Address.objects.create(
+            street1 = "123 Street Road",
+            street2 = "",
+            city = "Charlottesville",
+            state = "VA",
+            zipCode = 22903
+        )
+        test_profile1 = Profile.objects.create(
+            user_id = test_user1.pk,
+            shippingAddress_id = test_address1.pk,
+            phoneNumber = "123-1234-1234"
+        )
+
+        test_address2 = Address.objects.create(
+            street1 = "234 Street Road",
+            street2 = "",
+            city = "Charlottesville",
+            state = "VA",
+            zipCode = 22903
+        )
+
+        response = self.client.post(reverse('update_profile',kwargs={'profile_id':test_profile1.pk}), 
+            data={'shippingAddress_id':test_address2.pk})
+        #Response returns get from db with the new item 
+        self.assertContains(response,test_address2.pk)
+
+    def test_fail(self):
+        response = self.client.get(reverse('update_profile', kwargs={'profile_id':500}))
+        self.assertContains(response,'not found')

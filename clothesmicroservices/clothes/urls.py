@@ -26,4 +26,8 @@ urlpatterns = [
     path('address/<int:address_id>', views.get_address, name='get_address'),
     path('address/<int:address_id>/update', views.update_address, name='update_address'),
     path('address/new', views.new_address, name='new_address'),
+
+    path('profile/<int:profile_id>', views.get_profile, name='get_profile'),
+    path('profile/<int:profile_id>/update', views.update_profile, name='update_profile'),
+    path('profile/new/<int:user_id>', views.new_profile, name='new_profile'),
 ]

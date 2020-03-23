@@ -311,15 +311,6 @@ def logout(request):
 #         return JsonResponse(data=users_dict) 
 #     else:
 #         return JsonResponse(data={'ok':False, 'message': 'users not found'})  
-
-def get_user(request, user_id):
-    user = User.objects.filter(pk=user_id).values()
-    user_list = list(user)
-    user_dict = {'ok':True, 'user': user_list}
-    if user_list:
-        return JsonResponse(data=user_dict) 
-    else:
-        return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})    
        
 # update and display user
 def update_user(request, user_id):
@@ -429,11 +420,12 @@ def new_profile(request, user_id):
         return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})        
     else:
         if request.method == "POST":
-            shippingAddress = request.POST.get('shippingAddress')
+            user = request.POST.get('user_id')
+            shippingAddress = request.POST.get('shippingAddress_id')
             phoneNumber = request.POST.get('phoneNumber')
-            profile = Profile.objects.create(user=user, shippingAddress=shippingAddress, phoneNumber=phoneNumber)
+            new_profile = Profile.objects.create(user_id=user, shippingAddress_id=shippingAddress, phoneNumber=phoneNumber)
             # return after creating
-            return get_order(request, new_order.id)
+            return get_profile(request, new_profile.id)
         else:
             return JsonResponse(data={'ok':False, 'message': 'invalid request'})
 
@@ -455,16 +447,17 @@ def update_profile(request, profile_id):
         profile = None
     
     if not profile: 
-        return JsonResponse(data={'ok':False,'message': 'address not found', 'id searched': profile_id})    
+        return JsonResponse(data={'ok':False,'message': 'profile not found', 'id searched': profile_id})    
     else:
         if request.method == "POST":
-            shippingAddress = request.POST.get('shippingAddress')
+            shippingAddress_id = request.POST.get('shippingAddress_id')
+            shippingAddress = Address.objects.filter(pk=shippingAddress_id).first()
             if shippingAddress:
                 profile.shippingAddress = shippingAddress
             phoneNumber = request.POST.get('phoneNumber')
             if phoneNumber:
                 profile.phoneNumber = phoneNumber
             profile.save()
-            return get_address(request, profile_id)
+            return get_profile(request, profile_id)
         else:
             return JsonResponse(data={'ok':False, 'message': 'invalid request'})    
