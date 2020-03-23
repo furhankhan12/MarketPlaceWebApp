@@ -1,9 +1,12 @@
 from django.shortcuts import render
-# import urllib
+import urllib
 import urllib.request
 import urllib.parse
 import json
 from django.http import JsonResponse, HttpResponse
+import json, os, hmac
+from django.conf import settings
+from django.contrib.auth.hashers import make_password, check_password
 
 # Create your views here.
 
@@ -41,7 +44,92 @@ def get_searchResults(request, query):
     return JsonResponse(resp)
 
 
+## USERS
+def create_account(request):
+    print("NOT POST")
+    if request.method == "POST":
+        print("IAM HERE")
+        salt = hmac.new(
+                key = settings.SECRET_KEY.encode('utf-8'),
+                msg = os.urandom(32),
+                digestmod = 'sha256',
+            ).hexdigest()
+        username = request.POST.get('username')
+        password = make_password(request.POST.get('password'), salt=salt)
+        firstName = request.POST.get('firstName')
+        lastName = request.POST.get('lastName')
+        emailAddress = request.POST.get('emailAddress')
 
+        account_data = [
+            ('username',username),
+            ('password',password),
+            ('firstName', firstName),
+            ('lastName',lastName),
+            ('emailAddress',emailAddress),
+        ]
+
+        user =  urllib.request.Request('http://models:8000/api/v1/users/'+str(username))
+        resp_json = urllib.request.urlopen(user).read().decode('utf-8')
+        resp = json.loads(resp_json)
+        if not resp['ok']:
+            data = urllib.parse.urlencode(account_data).encode("utf-8")
+            req = urllib.request.Request('http://models:8000/api/v1/create_account/new')
+            with urllib.request.urlopen(req,data=data) as f:
+                resp_models = json.loads(f.read().decode('utf-8'))
+            print(resp_models)
+            if resp_models['ok']:
+                return JsonResponse(data={'ok':True, 'message': 'account created'}) 
+            else:
+                return JsonResponse(data={'ok':False, 'message': 'Something bad happened'}) 
+        else:
+            return JsonResponse(data={'ok':False, 'message': 'username already exists'}) 
+    else:
+        return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
+
+def login(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user =  urllib.request.Request('http://models:8000/api/v1/users/'+str(username))
+        resp_json = urllib.request.urlopen(user).read().decode('utf-8')
+        resp = json.loads(resp_json)
+        if resp['ok']:
+            valid = check_password(password, user.password)
+            if valid:
+                authenticator = hmac.new(
+                    key = settings.SECRET_KEY.encode('utf-8'),
+                    msg = os.urandom(32),
+                    digestmod = 'sha256',
+                ).hexdigest()
+                # user_id = user.id
+                auth = Authenticator.objects.create(user_id=user, authenticator=authenticator)
+                return JsonResponse(data={'ok':True, 'auth': auth.authenticator, 'login status': 'success'})
+            else: 
+                return JsonResponse(data={'ok':False, 'login status': 'incorrect username or password'})
+        else:
+            return JsonResponse(data={'ok':False, 'message': 'incorrect username or password'})
+    else:
+        return JsonResponse(data={'ok':False, 'message': 'invalid request'})       
+
+# def logout(request):
+#     if request.method == "POST":
+#         username = request.POST.get('username')
+#         user = User.objects.filter(username=username).first()
+#         auth = Authenticator.objects.filter(user_id=user).first()
+
+#         if not auth:
+#             return JsonResponse(data={'ok':False, 'message': 'not logged in', 'logout status': 'failure'})
+#         else: 
+#             auth.delete()
+#             return JsonResponse(data={'ok':True, 'logout status': 'success'})
+#     else:
+#         return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
+    
+# def user_is_authenticated(username):
+#     user = User.objects.filter(username=username)
+#     auth = Authenticator.objects.filter(user_id=user.id)
+#     return auth
 
 
 # make a POST request.

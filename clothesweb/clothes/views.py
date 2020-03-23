@@ -1,8 +1,9 @@
 from django.shortcuts import render,redirect
 from datetime import datetime
 import urllib.request, json
+import urllib.parse
 from django.http import JsonResponse, HttpResponse
-
+from .forms import SignUpForm
 # Create your views here.
 
 def get_all_listings(request):
@@ -50,6 +51,36 @@ def search_results(request):
         else:
             return redirect('/home/')
     return render('search.html',{'listings':{}})
+
+def create_account(request):
+    form = SignUpForm()
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form_data = form.cleaned_data
+            account_data = [
+            ('username',form_data['username']),
+            ('password',form_data['password']),
+            ('firstName', form_data['firstName']),
+            ('lastName',form_data['lastName']),
+            ('emailAddress',form_data['emailAddress']),
+        ]
+            # req = urllib.request.Request('http://exp:8000/users/signup',data= urllib.parse.urlencode(account_data).encode("utf-8"))
+            # resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+            # resp = json.loads(resp_json)
+            # print(resp)
+            data = urllib.parse.urlencode(account_data).encode("utf-8")
+            req = urllib.request.Request('http://exp:8000/users/signup')
+            with urllib.request.urlopen(req,data=data) as f:
+                resp = json.loads(f.read().decode('utf-8'))
+                print(resp)
+                if resp['ok']==True:
+                    return redirect('/home')
+                
+        
+    return render(request, 'signup.html', {'form': form})
+
+
 
 
     
