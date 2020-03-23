@@ -1,9 +1,12 @@
 from django.shortcuts import render
-# import urllib
+import urllib
 import urllib.request
 import urllib.parse
 import json
 from django.http import JsonResponse, HttpResponse
+import json, os, hmac
+from django.conf import settings
+from django.contrib.auth.hashers import make_password, check_password
 
 # Create your views here.
 
@@ -40,6 +43,48 @@ def get_searchResults(request, query):
     resp['listings'] = return_resp
     return JsonResponse(resp)
 
+
+## USERS
+def create_account(request):
+    
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        firstName = request.POST.get('firstName')
+        lastName = request.POST.get('lastName')
+        emailAddress = request.POST.get('emailAddress')
+        account_data = [
+            ('username',username),
+            ('password',password),
+            ('firstName', firstName),
+            ('lastName',lastName),
+            ('emailAddress',emailAddress),
+        ]
+        data = urllib.parse.urlencode(account_data).encode("utf-8")
+        req = urllib.request.Request('http://models:8000/api/v1/users/create_account')
+        with urllib.request.urlopen(req,data=data) as f:
+            resp_models = json.loads(f.read().decode('utf-8'))
+        if resp_models['ok']:
+                return JsonResponse(data={'ok':True, 'message': 'account created'}) 
+        else:
+            return JsonResponse(data=resp_models)
+
+def login(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        account_data = [
+            ('username',username),
+            ('password',password),
+        ]
+        data = urllib.parse.urlencode(account_data).encode("utf-8")
+        req = urllib.request.Request('http://models:8000/api/v1/users/login')
+        with urllib.request.urlopen(req,data=data) as f:
+            resp_json = json.loads(f.read().decode('utf-8'))  
+        if resp_json['ok']:
+            return resp_json['auth']
+        else:
+            return JsonResponse(data = resp_json)
 
 
 

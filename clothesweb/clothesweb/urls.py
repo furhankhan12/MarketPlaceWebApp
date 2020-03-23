@@ -22,4 +22,6 @@ urlpatterns = [
     path('home/', views.home, name='home'), 
     path('item/<int:pk>', views.item, name='item'),
     path('search/results/',views.search_results, name='search'),
+    path('users/signup/',views.create_account, name='create_account'),
 ]
+    

@@ -6,6 +6,7 @@ from django.core import serializers
 from django.contrib.auth.hashers import make_password, check_password
 import json, os, hmac
 from django.conf import settings
+import urllib
 
 ## LISTINGS
 def get_all_listings(request):
@@ -178,7 +179,35 @@ def delete_order(request, order_id):
         order.delete()
         return JsonResponse(data={'ok':True, 'delete status': 'success'})
 
-## USERS
+
+
+# def get_all_users(request):
+#     users = User.objects.all().values()
+#     users_list = list(users)
+#     users_dict = {'ok':True, 'users': users_list}
+#     if users_dict:
+#         return JsonResponse(data=users_dict) 
+#     else:
+#         return JsonResponse(data={'ok':False, 'message': 'users not found'})  
+
+def get_user(request, user_id):
+    user = User.objects.filter(pk=user_id).values()
+    user_list = list(user)
+    user_dict = {'ok':True, 'user': user_list}
+    if user_list:
+        return JsonResponse(data=user_dict) 
+    else:
+        return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})    
+
+# def get_user_username(request, user_name):
+#     user = User.objects.filter(username=user_name).first()
+#     if user is None:
+#         return JsonResponse(data={'ok': False, 'message': 'user not found', 'user_name searched': user_name}) 
+#     else:
+#         user_list = list(user)
+#         user_dict = {'ok':True, 'user': user_list}
+#         return JsonResponse(data=user_dict) 
+        
 def create_account(request):
     if request.method == "POST":
         salt = hmac.new(
@@ -193,15 +222,47 @@ def create_account(request):
         emailAddress = request.POST.get('emailAddress')
 
         user = User.objects.filter(username=username).first()
-        if not user:
+        user_email = User.objects.filter(emailAddress=emailAddress).first()
+        if not user and not user_email:
             new_user = User.objects.create(username=username, password=password, firstName=firstName, lastName=lastName, emailAddress=emailAddress)
         # output after create
         # login(request)
             return JsonResponse(data={'ok':True, 'message': 'account created'}) 
-        else:
+        if user:
             return JsonResponse(data={'ok':False, 'message': 'username already exists'}) 
+        if user_email:
+            return JsonResponse(data={'ok':False, 'message': 'email already in use'}) 
+
     else:
         return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
+
+    
+# new user
+# username = models.CharField(max_length=30, unique=True)
+#     password = models.CharField(max_length=500)
+#     firstName = models.CharField(max_length=30)
+#     lastName = models.CharField(max_length=30)
+#     emailAddress = models.CharField(max_length=50, unique=True)
+# def new_user(request):
+#     if request.method == "POST":
+#         # resp_json= urllib.request.urlopen(request.POST).read().decode('utf-8')
+#         # resp = json.loads(resp_json)
+#         # username = resp['username']
+#         # password = resp['password']
+#         # firstName = resp['firstName']
+#         # lastName = resp['lastName']
+#         # emailAddress = resp['emailAddress']
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         firstName = request.POST.get('firstName')
+#         lastName = request.POST.get('lastName')
+#         emailAddress = request.POST.get('emailAddress')
+#         new_user = User.objects.create(username=username, password=password, firstName = firstName,
+#          lastName = lastName, emailAddress=emailAddress)
+#         # output after create
+#         return JsonResponse(data={'ok':True, 'message': 'New account created'})
+         
+    
 
 def login(request):
     if request.method == "POST":

@@ -35,7 +35,7 @@ services:
       - "8002:8000"
     volumes:
       - ./clothesexperience:/app
-    command: "mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesexperience/wsgi.py"
+    command: "mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesexperience/wsgi.py "
 
   web:
     image: tp33/django
@@ -46,7 +46,7 @@ services:
       - "8000:8000"
     volumes:
       - ./clothesweb:/app
-    command: "mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesweb/wsgi.py"
+    command: "mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesweb/wsgi.py "
 
 networks:
   backend:
