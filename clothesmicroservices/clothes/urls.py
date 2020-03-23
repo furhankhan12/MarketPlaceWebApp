@@ -19,7 +19,11 @@ urlpatterns = [
     path('users/logout', views.logout, name='logout'),
     # path('users', views.get_all_users, name='users_list'),
     path('users/<int:user_id>', views.get_user, name='get_user'),
-    # path('users/<int:user_id>/delete', views.delete_user, name='delete_user'),
-    # path('users/<int:user_id>/update', views.update_user, name='update_user'),
+    path('users/<int:user_id>/delete', views.delete_user, name='delete_user'),
+    path('users/<int:user_id>/update', views.update_user, name='update_user'),
     # path('users/new', views.new_user, name='new_user'),
+
+    path('address/<int:address_id>', views.get_address, name='get_address'),
+    path('address/<int:address_id>/update', views.update_address, name='update_address'),
+    path('address/new', views.new_address, name='new_address'),
 ]

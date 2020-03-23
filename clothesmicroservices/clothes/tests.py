@@ -1,6 +1,6 @@
 from django.test import TestCase
 # from django.contrib.auth.models import User
-from .models import Listing, Order, User, Authenticator
+from .models import Listing, Order, User, Authenticator, Address, Profile
 from django.urls import reverse
 # Create your tests here.
 
@@ -38,8 +38,8 @@ class GetAllListingsTestCase(TestCase):
         self.assertContains(response,"Green shirt")
         self.assertContains(response,"Blue shirt")
         self.assertFalse("Red shirt" in response)
+
 class GetListingTestCase(TestCase):
-       
     def test_success(self):
         test_user = User.objects.create(username='Testuser')
         test_listing1 = Listing.objects.create(
@@ -56,8 +56,6 @@ class GetListingTestCase(TestCase):
         self.assertContains(response,'listing not found')
 
 class NewListingTestCase(TestCase):
-
-
     def test_success(self):
         test_user = User.objects.create(username='Testuser')
         response = self.client.post(reverse('new_listing'),data={'name':'Blue Shirt',
@@ -69,13 +67,11 @@ class NewListingTestCase(TestCase):
         #Response returns get from db with the new item 
         self.assertContains(response,'Blue Shirt')
 
-
-
     def test_fail(self):
         response = self.client.get(reverse('new_listing'))
         self.assertContains(response,'invalid')
-class UpdateListingTestCase(TestCase):
 
+class UpdateListingTestCase(TestCase):
     def test_success(self):
         test_user = User.objects.create(username='Testuser')
         test_listing1 = Listing.objects.create(
@@ -128,7 +124,6 @@ class DeleteListingTestCase(TestCase):
 
 
 class GetAllOrdersTestCase(TestCase):
-
     def setUp(self):
         test_user = User.objects.create(username='Testuser')
         test_listing1 = Listing.objects.create(
@@ -162,7 +157,6 @@ class GetAllOrdersTestCase(TestCase):
 
         )
 
-
     def test_values(self):
         response = self.client.get(reverse('orders_list'))
         self.assertContains(response,"Pigeon")
@@ -188,16 +182,12 @@ class GetOrderTestCase(TestCase):
         response = self.client.get(reverse('get_order',kwargs={'order_id':test_order1.pk}))
         self.assertContains(response,'Pigeon')
 
-
-
     def test_fail(self):
         response = self.client.get(reverse('get_order',kwargs={'order_id':100}))
         self.assertContains(response,'not found')
 
 
 class NewOrderTestCase(TestCase):
-
-
     def test_success(self):
         test_user = User.objects.create(username='Testuser')
         test_listing1 = Listing.objects.create(
@@ -218,15 +208,11 @@ class NewOrderTestCase(TestCase):
 
         self.assertContains(response,"Post")
 
-
-
-
     def test_fail(self):
         response = self.client.get(reverse('new_order'))
         self.assertContains(response,'invalid')
 
 class DeleteOrderTestCase(TestCase):
-
     def test_fail(self):
         response = self.client.get(reverse('delete_order',kwargs={'order_id':560}))
         self.assertContains(response,'not found')
@@ -250,7 +236,6 @@ class DeleteOrderTestCase(TestCase):
         self.assertContains(response,'success')
 
 class UpdateOrderTestCase(TestCase):
-
     def test_fail(self):
         response = self.client.post(reverse('update_order',kwargs={'order_id':500}))
         self.assertContains(response,'not found')
@@ -411,7 +396,6 @@ class logoutTestCase(TestCase):
         response = self.client.get(reverse('logout'))
         self.assertContains(response,'invalid')
     
-
 class logoutTestCase2(TestCase):
     def test_success(self):
         account = self.client.post(reverse('create_account'),data= {
@@ -431,5 +415,70 @@ class logoutTestCase2(TestCase):
         response = self.client.get(reverse('logout'))
         self.assertContains(response,'invalid')
 
+class UpdateUserTestCase(TestCase):
+    def test_fail(self):
+        response = self.client.get(reverse('get_user',kwargs={'user_id':500}))
+        self.assertContains(response,'not found')
+    def test_success(self):
+        test_user = User.objects.create(username='Testuser')
+        response = self.client.post(reverse('update_user',kwargs={'user_id':test_user.pk}), 
+            data={'firstName':'Billy Bob'})
+        self.assertContains(response,'Billy Bob')
 
+class DeleteUserTestCase(TestCase):
+    def test_fail(self):
+        response = self.client.get(reverse('delete_user',kwargs={'user_id':560}))
+        self.assertContains(response,'not found')
+    def test_success(self):
+        test_user = User.objects.create(username='Testuser')
+        response = self.client.get(reverse('delete_user',kwargs={'user_id':test_user.pk}))
+        self.assertContains(response,'success')
 
+class GetAddressTestCase(TestCase):
+    def test_success(self):
+        test_address1 = Address.objects.create(
+            street1 = "123 Street Road",
+            street2 = "",
+            city = "Charlottesville",
+            state = "VA",
+            zipCode = 22903
+        )
+        response = self.client.get(reverse('get_address', kwargs={'address_id':test_address1.pk}))
+        self.assertContains(response,"123 Street Road")
+    def test_fail(self):
+        response = self.client.get(reverse('get_address',kwargs={'address_id':100}))
+        self.assertContains(response,'address not found')
+
+class NewAddressTestCase(TestCase):
+    def test_success(self):
+        response = self.client.post(reverse('new_address'),data={
+            'street1':"123 Street Road",
+            'street2':"",
+            'city':"Charlottesville",
+            'state':"VA",
+            'zipCode':22903
+        })
+        #Response returns get from db with the new item 
+        self.assertContains(response,'123 Street Road')
+
+    def test_fail(self):
+        response = self.client.get(reverse('new_address'))
+        self.assertContains(response,'invalid')
+
+class UpdateAddressTestCase(TestCase):
+    def test_success(self):
+        test_address1 = Address.objects.create(
+            street1 = "123 Street Road",
+            street2 = "",
+            city = "Charlottesville",
+            state = "VA",
+            zipCode = 22903
+        )
+        response = self.client.post(reverse('update_address',kwargs={'address_id':test_address1.pk}), 
+            data={'street1':'1234 Street Road'})
+        #Response returns get from db with the new item 
+        self.assertContains(response,'1234 Street Road')
+
+    def test_fail(self):
+        response = self.client.get(reverse('update_address', kwargs={'address_id':500}))
+        self.assertContains(response,'not found')

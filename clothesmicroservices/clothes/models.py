@@ -18,11 +18,19 @@ class Authenticator(models.Model):
     user_id = models.OneToOneField(User, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now=True)
 
-# class Profile(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     homeAddress 
-#     phoneNumber
+class Address(models.Model):
+    id = models.AutoField(primary_key=True)
+    street1 = models.CharField(max_length=40)
+    street2 = models.CharField(max_length=40)
+    city = models.CharField(max_length=40)
+    state = models.CharField(max_length=2)
+    zipCode = models.IntegerField()
 
+class Profile(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    shippingAddress = models.OneToOneField(Address, on_delete=models.CASCADE)
+    phoneNumber = models.CharField(max_length=13)
 
 class Listing(models.Model):
     id = models.AutoField(primary_key=True)

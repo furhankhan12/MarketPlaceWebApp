@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
-from .models import Listing, Order, User, Authenticator
+from .models import Listing, Order, User, Authenticator, Profile, Address
 from django.shortcuts import get_object_or_404
 from django.core import serializers
 from django.contrib.auth.hashers import make_password, check_password
@@ -165,7 +165,6 @@ def update_order(request, order_id):
         else:
             return JsonResponse(data={'ok':False, 'message': 'invalid request'})    
     
-
 # delete order
 def delete_order(request, order_id):
     try: 
@@ -242,10 +241,6 @@ def logout(request):
     else:
         return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
     
-def user_is_authenticated(username):
-    user = User.objects.filter(username=username)
-    auth = Authenticator.objects.filter(user_id=user.id)
-    return auth
 
 # def get_all_users(request):
 #     users = User.objects.all().values()
@@ -264,60 +259,151 @@ def get_user(request, user_id):
         return JsonResponse(data=user_dict) 
     else:
         return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})    
+       
+# update and display user
+def update_user(request, user_id):
+    try: 
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist: 
+        user = None
+
+    if not user:
+        return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})        
+    else:
+        if request.method == "POST":
+            firstName = request.POST.get('firstName')
+            if firstName:
+                user.firstName = firstName
+            lastName = request.POST.get('lastName')
+            if lastName:
+                user.lastName = lastName    
+            emailAddress = request.POST.get('emailAddress')
+            if emailAddress:
+                user.emailAddress = emailAddress
+            user.save()
+            # output after update
+            return get_user(request, user_id)
+        else:
+            return JsonResponse(data={'ok':False, 'message': 'invalid request'})    
+
+# delete user
+def delete_user(request, user_id):
+    try: 
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist: 
+        user = None
+
+    if not user:
+        return JsonResponse(data={'ok':False,'message': 'user not found', 'id searched': user_id, 'delete status': 'failure'})        
+    else:
+        logout(request)
+        user.delete()
+        return JsonResponse({'ok':True, 'delete status': 'success'})
+
+## ADDRESS
+# new address
+def new_address(request):
+    if request.method == "POST":
+        street1 = request.POST.get('street1')
+        street2 = request.POST.get('street2')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        zipCode = request.POST.get('zipCode')
+        new_address = Address.objects.create(street1=street1, street2=street2, city=city, state=state, zipCode=zipCode)
+        # output after create
+        return get_address(request, new_address.id)
+    else:
+        return JsonResponse(data={'ok':False, 'message': 'invalid request'})  
+
+# get address
+def get_address(request, address_id):
+    address = Address.objects.filter(pk=address_id).values()
+    address_list = list(address)
+    address_dict = {'ok':True, 'address': address_list}
+    if address_list:
+        return JsonResponse(data=address_dict) 
+    else:
+        return JsonResponse(data={'ok':False, 'message': 'address not found', 'id searched': address_id})     
+
+# update and display address
+def update_address(request, address_id):
+    try: 
+        address = Address.objects.get(pk=address_id)
+    except Address.DoesNotExist: 
+        address = None
     
-# new user
-# def new_user(request):
-#     if request.method == "POST":
-#         username = request.POST.get('username')
-#         password = make_password(request.POST.get('password'))
-#         new_user = User.objects.create(username=username, password=password)
-#         # output after create
-#         return get_user(request, new_user.id)
-#     else:
-#         return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
+    if not address: 
+        return JsonResponse(data={'ok':False,'message': 'address not found', 'id searched': address_id})    
+    else:
+        if request.method == "POST":
+            street1 = request.POST.get('street1')
+            if street1:
+                address.street1 = street1
+            street2 = request.POST.get('street2')
+            if street2:
+                address.street2 = street2
+            city = request.POST.get('city')
+            if city:
+                address.city = city
+            state = request.POST.get('state')
+            if state:
+                address.state = state
+            zipCode = request.POST.get('zipCode')
+            if zipCode:
+                address.zipCode = zipCode
+            address.save()
+            return get_address(request, address_id)
+        else:
+            return JsonResponse(data={'ok':False, 'message': 'invalid request'})    
 
-# update and display listing
-# def update_user(request, user_id):
-#     try: 
-#         user = User.objects.get(pk=user_id)
-#     except User.DoesNotExist: 
-#         user = None
+## PROFILES
+# new profile
+def new_profile(request, user_id):
+    try: 
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist: 
+        user = None
 
-#     if not user:
-#         return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})        
-#     else:
-#         if request.method == "POST":
-#             first_name = request.POST.get('first_name')
-#             if first_name:
-#                 user.first_name = first_name
-#             last_name = request.POST.get('last_name')
-#             if last_name:
-#                 user.last_name = last_name    
-#             email = request.POST.get('email')
-#             if email:
-#                 user.email = email
-#             is_superuser = request.POST.get('is_superuser')
-#             if is_superuser:
-#                 user.is_superuser = is_superuser
-#             is_staff = request.POST.get('is_staff')
-#             if is_staff:
-#                 user.is_staff = is_staff
-#             user.save()
-#             # output after update
-#             return get_user(request, user_id)
-#         else:
-#             return JsonResponse(data={'ok':False, 'message': 'invalid request'})    
+    if not user:
+        return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})        
+    else:
+        if request.method == "POST":
+            shippingAddress = request.POST.get('shippingAddress')
+            phoneNumber = request.POST.get('phoneNumber')
+            profile = Profile.objects.create(user=user, shippingAddress=shippingAddress, phoneNumber=phoneNumber)
+            # return after creating
+            return get_order(request, new_order.id)
+        else:
+            return JsonResponse(data={'ok':False, 'message': 'invalid request'})
 
-#delete users
-# def delete_user(request, user_id):
-#     try: 
-#         user = User.objects.get(pk=user_id)
-#     except User.DoesNotExist: 
-#         user = None
+# get profile
+def get_profile(request, profile_id):
+    profile = Profile.objects.filter(pk=profile_id).values()
+    profile_list = list(profile)
+    profile_dict = {'ok':True, 'profile': profile_list}
+    if profile_list:
+        return JsonResponse(data=profile_dict) 
+    else:
+        return JsonResponse(data={'ok':False, 'message': 'profile not found', 'id searched': profile_id})     
 
-#     if not user:
-#         return JsonResponse(data={'ok':False,'message': 'user not found', 'id searched': user_id, 'delete status': 'failure'})        
-#     else:
-#         user.delete()
-#         return JsonResponse({'ok':True, 'delete status': 'success'})
-
+# update and display profile
+def update_profile(request, profile_id):
+    try: 
+        profile = Profile.objects.get(pk=profile_id)
+    except Profile.DoesNotExist: 
+        profile = None
+    
+    if not profile: 
+        return JsonResponse(data={'ok':False,'message': 'address not found', 'id searched': profile_id})    
+    else:
+        if request.method == "POST":
+            shippingAddress = request.POST.get('shippingAddress')
+            if shippingAddress:
+                profile.shippingAddress = shippingAddress
+            phoneNumber = request.POST.get('phoneNumber')
+            if phoneNumber:
+                profile.phoneNumber = phoneNumber
+            profile.save()
+            return get_address(request, profile_id)
+        else:
+            return JsonResponse(data={'ok':False, 'message': 'invalid request'})    
