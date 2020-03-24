@@ -97,6 +97,43 @@ def logout(request):
     else:
         return JsonResponse(data={'ok':True, 'message': 'Invalid request'}) 
 
+def reset_password(request):
+    if request.method == "POST":
+        token = request.POST.get('token')
+        new_password = request.POST.get('new_password')
+        auth_data = [
+        ('token',token),
+        ('new_password',new_password),
+        ]
+        data = urllib.parse.urlencode(auth_data).encode("utf-8")
+        req = urllib.request.Request('http://models:8000/api/v1/users/reset_password')
+        with urllib.request.urlopen(req,data=data) as f:
+            resp_json = json.loads(f.read().decode('utf-8'))  
+        return JsonResponse(data = resp_json)
+    else:
+        return JsonResponse(data={'ok':True, 'message': 'Invalid request'})
+
+def reset_password_email(request):
+    if request.method == "POST":
+        email = request.POST.get('emailAddress')
+        email_data = [
+            ('emailAddress',email),
+        ]
+        data = urllib.parse.urlencode(email_data).encode("utf-8")
+        req = urllib.request.Request('http://models:8000/api/v1/users/generate_token')
+        with urllib.request.urlopen(req,data=data) as f:
+            resp_json = json.loads(f.read().decode('utf-8'))  
+        return JsonResponse(data = resp_json)
+    else:
+        return JsonResponse(data={'ok':True, 'message': 'Invalid request'})
+
+        
+
+
+
+
+
+
 
 
 

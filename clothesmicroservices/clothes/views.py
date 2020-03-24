@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
-from .models import Listing, Order, User, Authenticator
+from .models import Listing, Order, User, Authenticator, ResetToken
 from django.shortcuts import get_object_or_404
 from django.core import serializers
 from django.contrib.auth.hashers import make_password, check_password
 import json, os, hmac
 from django.conf import settings
 import urllib
+import uuid
 
 ## LISTINGS
 def get_all_listings(request):
@@ -283,7 +284,7 @@ def login(request):
                 auth = Authenticator.objects.create(user_id=user.id, authenticator=authenticator)
                 return JsonResponse(data={'ok':True, 'auth': auth.authenticator, 'login status': 'success'})
             else: 
-                return JsonResponse(data={'ok':False, 'login status': 'incorrect username or password'})
+                return JsonResponse(data={'ok':False, 'message': 'incorrect username or password'})
         else:
             return JsonResponse(data={'ok':False, 'message': 'incorrect username or password'})
     else:
@@ -305,6 +306,56 @@ def user_is_authenticated(username):
     user = User.objects.filter(username=username)
     auth = Authenticator.objects.filter(user_id=user.id)
     return auth
+
+def reset_user_password(request):
+    if request.method == "POST":
+        reset_token = request.POST.get('token')
+        new_password = request.POST.get("new_password")
+       
+        token_object = ResetToken.objects.filter(token=reset_token).first()
+        if not token_object:
+            return JsonResponse(data={'ok':False, 'message': 'Invalid token'})
+        else:
+            try: 
+                user = User.objects.get(pk=token_object.user_id)
+            except User.DoesNotExist: 
+                user = None
+    
+            if not user: 
+                return JsonResponse(data={'ok':False,'message': 'user not found'})   
+            else:
+                print(new_password)
+                salt = hmac.new(
+                key = settings.SECRET_KEY.encode('utf-8'),
+                msg = os.urandom(32),
+                digestmod = 'sha256',
+            ).hexdigest()
+                user.password = make_password(new_password, salt=salt)
+                user.save()
+                token_object.delete()
+                return  JsonResponse(data={'ok':True,'message': 'Password Reset'}) 
+    else:
+          return JsonResponse(data={'ok':False, 'message': 'invalid request'})
+
+def generate_token(request):
+    if request.method == "POST":
+        reset_email = request.POST.get('emailAddress')
+        user = User.objects.filter(emailAddress=reset_email).first()
+        current_token = str(uuid.uuid4())
+        if not user:
+            return JsonResponse(data={'ok':False, 'message': 'Invalid email'})
+        else:
+            reset_token = ResetToken.objects.create(user_id=user.id, token=str(current_token))
+            return  JsonResponse(data={'ok':True,'token': str(current_token)}) 
+    else:
+        return JsonResponse(data={'ok':False, 'message': 'invalid request'})
+
+def update_user_profile(request):
+    
+
+        
+        
+
 # update and display listing
 # def update_user(request, user_id):
 #     try: 

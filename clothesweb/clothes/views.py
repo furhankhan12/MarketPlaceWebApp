@@ -3,8 +3,10 @@ from datetime import datetime
 import urllib.request, json
 import urllib.parse
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-from .forms import SignUpForm, LoginForm
+from .forms import SignUpForm, LoginForm, PasswordResetEmailForm, PassWordResetForm
 from django.contrib import messages 
+from django.core.mail import send_mail
+from django.conf import settings
 # Create your views here.
 
 def get_all_listings(request):
@@ -25,18 +27,23 @@ def get_listing(request, listing_id):
 def home(request):
     listings_json = get_all_listings(request)
     listings_list = listings_json['listings']
-  
+    authenticated = False
+    if request.COOKIES.get('auth'):
+        authenticated=True
     time = datetime.now()
     if listings_json['ok']:
-        return render(request, 'home.html', {'time':time, 'listings':listings_list})
+        return render(request, 'home.html', {'time':time, 'listings':listings_list, 'authenticated':authenticated})
     # else:
 
 def item(request, pk):
     # time = datetime.now()
     listing_json = get_listing(request, pk)
     listing_list = listing_json['listing']
+    authenticated = False
+    if request.COOKIES.get('auth'):
+        authenticated=True
     if listing_json['ok']:
-        return render(request, 'details.html', {'listing':listing_list})
+        return render(request, 'details.html', {'listing':listing_list, 'authenticated':authenticated})
 def search_results(request):
     current_query = str(request.GET['Query'])
     if current_query=='':
@@ -45,10 +52,13 @@ def search_results(request):
     req = urllib.request.Request(url)
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
+    authenticated = False
+    if request.COOKIES.get('auth'):
+        authenticated=True
     if resp!={}:
         search_list = resp['listings']
         if resp['ok']:
-            return render(request, 'search.html', {'listings':search_list})
+            return render(request, 'search.html', {'listings':search_list, 'authenticated':authenticated})
         else:
             return redirect('/home/')
     return render('search.html',{'listings':{}})
@@ -77,7 +87,13 @@ def create_account(request):
                 resp = json.loads(f.read().decode('utf-8'))
                 print(resp)
                 if resp['ok']==True:
-                    return redirect('/home')
+                    subject = 'Thank you for registering to our site'
+                    message = ' it  means the world to us '
+                    email_from = settings.EMAIL_HOST_USER
+                    recipient_list = [form_data['emailAddress'],]
+                    send_mail( subject, message, email_from, recipient_list )
+                    messages.success(request,"Account Created")
+                    return redirect('/users/login')
                 else:
                     messages.error(request, resp['message'])
                 
@@ -102,16 +118,16 @@ def login(request):
             req = urllib.request.Request('http://exp:8000/users/login')
             with urllib.request.urlopen(req,data=data) as f:
                 resp = json.loads(f.read().decode('utf-8'))
-                if resp['ok']==True:
-                    authenticator = resp['auth']
-                    response = HttpResponseRedirect('/home')
-                    response.set_cookie("auth", authenticator)
-                    print(resp)
-                    return response
-                else:
-                    messages.error(request, resp['message'])
+            if resp['ok']==True:
+                authenticator = resp['auth']
+                response = HttpResponseRedirect('/home')
+                response.set_cookie("auth", authenticator)
+                print(resp)
+                return response
+            else:
+                messages.error(request, resp['message'])
         
-    return render(request, 'signup.html', {'form': form})
+    return render(request, 'login.html', {'form': form})
 def logout(request):
     auth = request.COOKIES.get('auth') 
     auth_data = [
@@ -128,6 +144,56 @@ def logout(request):
     else:
         messages.error(request,resp_json['message'])
     return render(request,'home.html')
+
+def reset_password_email(request):
+    form = PasswordResetEmailForm()
+    if request.method == 'POST':
+        form = PasswordResetEmailForm(request.POST)
+        if form.is_valid():
+            form_data = form.cleaned_data
+            email_data = [
+            ('emailAddress',form_data['emailAddress']),
+        ]
+            data = urllib.parse.urlencode(email_data).encode("utf-8")
+            req = urllib.request.Request('http://exp:8000/users/reset_password_email')
+            with urllib.request.urlopen(req,data=data) as f:
+                resp = json.loads(f.read().decode('utf-8'))
+                if resp['ok']==True:
+                    subject = 'Your Reset Token'
+                    message = "http://localhost:8000/users/reset_password/"+str(resp['token'])
+                    email_from = settings.EMAIL_HOST_USER
+                    recipient_list = [form_data['emailAddress'],]
+                    send_mail( subject, message, email_from, recipient_list )
+                    messages.success(request, "Email has been sent")
+                    return redirect("/home")
+                else:
+                    messages.error(request, resp['message']) 
+    return render(request, 'reset_password_email.html', {'form': form})
+def reset_password(request,token):
+    form = PassWordResetForm()
+    if request.method == 'POST':
+        form = PassWordResetForm(request.POST)
+        if form.is_valid():
+            form_data = form.cleaned_data
+            password_data = [
+            ('new_password',form_data['new_password']),
+            ('token',token),
+        ]
+            data = urllib.parse.urlencode(password_data).encode("utf-8")
+            req = urllib.request.Request('http://exp:8000/users/reset_password')
+            with urllib.request.urlopen(req,data=data) as f:
+                resp = json.loads(f.read().decode('utf-8'))
+                if resp['ok']==True:
+                    messages.success(request,"Password has been reset")
+                    return redirect("/home")
+                else:
+                    messages.error(request, resp['message']) 
+    return render(request, 'reset_password.html', {'form': form})
+
+
+
+
+    
 
 
 

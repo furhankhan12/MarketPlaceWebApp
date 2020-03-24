@@ -18,6 +18,11 @@ class Authenticator(models.Model):
     user_id = models.IntegerField()
     date_created = models.DateTimeField(auto_now=True)
 
+class ResetToken(models.Model):
+    token = models.CharField(primary_key=True,max_length=64)
+    user_id = models.IntegerField()
+    data_created = models.DateTimeField(auto_now=True)
+
 # class Profile(models.Model):
 #     user = models.OneToOneField(User, on_delete=models.CASCADE)
 #     homeAddress 
