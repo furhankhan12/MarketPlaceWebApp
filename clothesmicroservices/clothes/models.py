@@ -1,6 +1,7 @@
 from django.db import models
 import datetime
 from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import BaseUserManager
 
 class User(AbstractBaseUser):
     id = models.AutoField(primary_key=True)
@@ -8,10 +9,12 @@ class User(AbstractBaseUser):
     password = models.CharField(max_length=500)
     firstName = models.CharField(max_length=30)
     lastName = models.CharField(max_length=30)
-    emailAddress = models.CharField(max_length=50, unique=True)
+    emailAddress = models.EmailField(unique=True)
+
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ('emailAddress',)
+
 
 class Authenticator(models.Model):
     authenticator = models.CharField(primary_key=True, max_length=64)

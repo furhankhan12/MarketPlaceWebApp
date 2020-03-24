@@ -23,7 +23,7 @@ services:
       - ./clothesmicroservices:/app
     command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesmicroservices/wsgi.py"
     # command: bash -c "chmod 777 wait-for-it.sh && ./wait-for-it.sh -t 15 db:3306 -- python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py loaddata db_p2.json && mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesmicroservices/wsgi.py"
-    # command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py loaddata db_p2.json && mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesmicroservices/wsgi.py"
+    # command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py loaddata db.json && mod_wsgi-express start-server --log-to-terminal --working-directory . --reload-on-changes clothesmicroservices/wsgi.py"
 
   exp:
     image: tp33/django

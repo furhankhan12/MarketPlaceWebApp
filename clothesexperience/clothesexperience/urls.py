@@ -21,6 +21,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('listings', views.get_all_listings, name='listings'),
     path('listings/<int:listing_id>', views.get_listing, name='get_listing'),
+    path('listings/<int:listing_id>/update', views.update_listing, name='update_listing'),
+    path('listings/<int:listing_id>/delete', views.delete_listing, name='delete_listing'),
+
     path('listings/new', views.new_listing, name='new_listing'),
     path('search/<slug:query>',views.get_searchResults,name='search'),
     path('users/signup',views.create_account, name='create_account'),

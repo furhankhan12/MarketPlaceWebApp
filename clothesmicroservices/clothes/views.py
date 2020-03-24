@@ -55,7 +55,8 @@ def new_listing(request):
 # update and display listing
 def update_listing(request, listing_id):
     try: 
-        listing = Listing.objects.get(pk=listing_id)
+        listing = Listing.objects.get(pk=int(listing_id))
+        print("INSIDE OF MODELS", listing)
     except Listing.DoesNotExist: 
         listing = None
     
@@ -63,6 +64,8 @@ def update_listing(request, listing_id):
         return JsonResponse(data={'ok':False,'message': 'listing not found', 'id searched': listing_id})    
     else:
         if request.method == "POST":
+            print("INSIDE OF MODELS POST")
+            print(request.POST)
             name = request.POST.get('name')
             if name: 
                 listing.name = name
@@ -75,11 +78,8 @@ def update_listing(request, listing_id):
             description = request.POST.get('description')
             if description:
                 listing.description = description
-            seller = request.POST.get('seller_id')
-            if seller:
-                listing.seller_id = seller
             listing.save()
-            return get_listing(request, listing_id)
+            return get_listing(request, int(listing_id))
         else:
             return JsonResponse(data={'ok':False, 'message': 'invalid request'})    
 
@@ -179,7 +179,6 @@ def delete_order(request, order_id):
         return JsonResponse(data={'ok':True, 'delete status': 'success'})
 
 
-
 # def get_all_users(request):
 #     users = User.objects.all().values()
 #     users_list = list(users)
@@ -239,13 +238,11 @@ def create_account(request):
         user_email = User.objects.filter(emailAddress=emailAddress).first()
         if not user and not user_email:
             new_user = User.objects.create(username=username, password=password, firstName=firstName, lastName=lastName, emailAddress=emailAddress)
-        # output after create
-        # login(request)
-            return JsonResponse(data={'ok':True, 'message': 'account created'}) 
+            return JsonResponse(data={'ok':True, 'message': 'Account An account created.'}) 
         if user:
-            return JsonResponse(data={'ok':False, 'message': 'username already exists'}) 
+            return JsonResponse(data={'ok':False, 'message': 'An account with that username already exists. If this is you, try logging in. If not, choose a new username.'}) 
         if user_email:
-            return JsonResponse(data={'ok':False, 'message': 'email already in use'}) 
+            return JsonResponse(data={'ok':False, 'message': 'An account with that email already exists. Try logging in.'}) 
 
     else:
         return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
@@ -296,21 +293,21 @@ def login(request):
                 auth = Authenticator.objects.create(user_id=user.id, authenticator=authenticator)
                 return JsonResponse(data={'ok':True, 'auth': auth.authenticator, 'login status': 'success'})
             else: 
-                return JsonResponse(data={'ok':False, 'login status': 'incorrect username or password'})
+                return JsonResponse(data={'ok':False, 'message': 'Incorrect username or password.'})
         else:
-            return JsonResponse(data={'ok':False, 'message': 'incorrect username or password'})
+            return JsonResponse(data={'ok':False, 'message': 'Incorrect username or password.'})
     else:
-        return JsonResponse(data={'ok':False, 'message': 'invalid request'})       
+        return JsonResponse(data={'ok':False, 'message': 'Invalid request'})       
 
 def logout(request):
     if request.method == "POST":
         auth_token = request.POST.get('auth')
         auth = Authenticator.objects.filter(authenticator=auth_token).first()
         if not auth:
-            return JsonResponse(data={'ok':False, 'message': 'not logged in', 'logout status': 'failure'})
+            return JsonResponse(data={'ok':False, 'message': 'Not logged in', 'logout status': 'failure'})
         else: 
             auth.delete()
-            return JsonResponse(data={'ok':True, 'logout status': 'success'})
+            return JsonResponse(data={'ok':True, 'message': 'Successfully logged out.'})
     else:
         return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
   

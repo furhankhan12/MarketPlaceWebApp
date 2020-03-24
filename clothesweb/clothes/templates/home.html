@@ -86,7 +86,7 @@
         <h1 class="display-3">Welcome!</h1>
         <p class="lead">To our clothing marketplace app</p>
         {% if request.COOKIES.auth %}
-          <a type="button" class="btn btn-primary" href="#">Create a listing</a>
+          <a type="button" class="btn btn-primary" href="/listing/new">Create a listing</a>
         {% else %}
           <a type="button" class="btn btn-primary" href="/users/signup">Sign Up</a>
           <a type="button" class="btn btn-secondary" href="/users/login">Login</a>
@@ -165,12 +165,12 @@
             <img class="card-img-top" src="http://placehold.it/500x325" alt="">
             <div class="card-body">
               <h4 class="card-title">{{ item.name }}</h4>
-              <p class="card-text">{{item.color}}</p>
+              <!-- <p class="card-text">{{item.color}}</p> -->
               <p class="card-text">${{item.price}}</p>
               <!-- <p class="card-text">{{item.description |slice:":25"}}...</p> -->
             </div>
             <div class="card-footer">
-              <a href="{% url 'item' pk=item.id %}" class="btn btn-dark">Details</a>
+              <a href="{% url 'listing' listing_id=item.id %}" class="btn btn-dark">Details</a>
             </div>
           </div>
         </div>

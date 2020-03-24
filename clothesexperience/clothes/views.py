@@ -15,7 +15,7 @@ def get_all_listings(request):
     req = urllib.request.Request('http://models:8000/api/v1/listings')
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
-    # print(resp['ok'])
+    print(resp['ok'])
     return JsonResponse(resp)
 
 def get_listing(request, listing_id):
@@ -26,6 +26,42 @@ def get_listing(request, listing_id):
     # print(resp['ok'])
     return JsonResponse(resp)
 
+def update_listing(request, listing_id):
+# note, no timeouts, error handling or all the other things needed to do this for real
+   if request.method == "POST":
+        name = request.POST.get('name')
+        color = request.POST.get('color')
+        price = request.POST.get('price')
+        description = request.POST.get('description')
+        listing_data = [
+            ('name',name),
+            ('color',color),
+            ('price',price),
+            ('description',description),
+        ]
+        data = urllib.parse.urlencode(listing_data).encode("utf-8")
+        req = urllib.request.Request('http://models:8000/api/v1/listings/' + str(listing_id) + '/update')
+        with urllib.request.urlopen(req,data=data) as f:
+            resp_models = json.loads(f.read().decode('utf-8'))
+        if resp_models['ok']:
+            print(resp_models) 
+            return JsonResponse(data=resp_models)
+        else:
+            return JsonResponse(data=resp_models)  
+
+def delete_listing(request, listing_id):
+    if request.method == "POST":
+        listing_data = [
+            ('listing_id',listing_id),
+        ]
+        data = urllib.parse.urlencode(listing_data).encode("utf-8")
+        req = urllib.request.Request('http://models:8000/api/v1/listings/' + str(listing_id) + '/delete')
+        with urllib.request.urlopen(req,data=data) as f:
+            resp_json = json.loads(f.read().decode('utf-8'))  
+        return JsonResponse(data = resp_json)
+    else:
+        return JsonResponse(data={'ok':False, 'message': 'invalid request'})        
+
 def new_listing(request):
     if request.method == "POST":
         name = request.POST.get('name')
@@ -33,8 +69,7 @@ def new_listing(request):
         color = request.POST.get('color')
         description = request.POST.get('description')
         seller_id = request.POST.get('seller_id')
-        # auth = request.POST.get('auth')
-        # seller = get_user_with_auth(request)
+
         listing_data = [
             ('name',name),
             ('price',price),
@@ -47,8 +82,6 @@ def new_listing(request):
         with urllib.request.urlopen(req,data=data) as f:
             resp_models = json.loads(f.read().decode('utf-8'))
         if resp_models['ok']:
-            print(resp_models)
-            # return JsonResponse(data={'ok':True, 'message': 'listing created'}) 
             return JsonResponse(data=resp_models)
         else:
             return JsonResponse(data=resp_models)
@@ -62,11 +95,12 @@ def get_searchResults(request, query):
     listings = resp['listings']
     return_resp = []
     for listing in listings:
-        description = str(listing['description']).lower().split()
-        color = str(listing['color']).lower().split()
-        name = str(listing['name']).lower().split()
+        description = str(str(listing['description']).lower().split())
+        color = str(str(listing['color']).lower().split())
+        name = str(str(listing['name']).lower().split())
         to_search = " ".join([description, color, name])
         query_split = query.split()
+        print(query_split)
         for search_term in query_split:
             search_term = str(search_term).lower()
             if search_term in to_search:
@@ -86,36 +120,6 @@ def get_user_with_auth(request):
         with urllib.request.urlopen(req,data=data) as f:
             resp_json = json.loads(f.read().decode('utf-8'))  
         return JsonResponse(data = resp_json)
-    # print("inside of exp, outside request")
-    # print("exp", request)
-    # if request.method == "GET":
-    #     # auth = request.POST.get('auth')
-    # # auth = request.COOKIES.get('auth')
-    #     print("inside of exp")
-    #     if auth:
-    #         print("auth in exp", auth)
-    #         url = 'http://models:8000/api/v1/users/get_user_with_auth/' + str(auth)
-    #         req = urllib.request.Request(url)
-    #     # print(req)
-    #         resp_json = urllib.request.urlopen(req).read().decode('utf-8')
-    #         resp = json.loads(resp_json)
-    #         print(resp)
-    #     # return resp
-    #     # data = urllib.parse.urlencode(auth).encode("utf-8")
-    #     # req = urllib.request.Request('http://models:8000/api/v1/users/get_user_with_auth')
-
-    #     # user_id = get_user_with_auth(request, auth)['user']['id']
-    #     # with urllib.request.urlopen(req,data=data) as f:
-    #     #     resp_models = json.loads(f.read().decode('utf-8'))
-    #         if resp_json['ok']:
-    #             user_id = resp_json['user']['id']
-    #             return JsonResponse(data={'ok':True, 'user_id': user_id}) 
-    #         else:
-    #             return JsonResponse(data=resp_json)
-    #     else:
-    #         return JsonResponse(data={'ok':False})
-    # else:
-    #     return JsonResponse(data={'ok':False, 'message': 'invalid request'}) 
 
 def create_account(request):
     if request.method == "POST":
@@ -158,7 +162,7 @@ def logout(request):
     if request.method == "POST":
         auth = request.POST.get('auth')
         auth_data = [
-        ('auth',auth),
+            ('auth',auth),
         ]
         data = urllib.parse.urlencode(auth_data).encode("utf-8")
         req = urllib.request.Request('http://models:8000/api/v1/users/logout')
