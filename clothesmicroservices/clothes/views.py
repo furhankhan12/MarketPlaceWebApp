@@ -51,8 +51,7 @@ def new_listing(request):
         return get_listing(request, new_listing.id)
     else:
         return JsonResponse(data={'ok':False, 'message': 'invalid request'})  
-    
-        
+         
 # update and display listing
 def update_listing(request, listing_id):
     try: 
@@ -190,7 +189,7 @@ def delete_order(request, order_id):
 #     else:
 #         return JsonResponse(data={'ok':False, 'message': 'users not found'})  
 
-def get_user(request, user_id):
+def get_user_with_id(request, user_id):
     user = User.objects.filter(pk=user_id).values()
     user_list = list(user)
     user_dict = {'ok':True, 'user': user_list}
@@ -198,6 +197,21 @@ def get_user(request, user_id):
         return JsonResponse(data=user_dict) 
     else:
         return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})    
+
+def get_user_with_auth(request):
+    if request.method == "POST":
+        auth_token = request.POST.get('auth')
+        auth = Authenticator.objects.filter(authenticator=auth_token).first()
+        user_id = auth.user_id
+        user = User.objects.filter(pk=user_id).values()
+        user_list = list(user)
+        user_dict = {'ok':True, 'user': user_list}
+        if user_list:
+            return JsonResponse(data=user_dict) 
+        else:
+            return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})    
+    else:
+        return JsonResponse(data={'ok': False, 'message': 'user not authenticated'})    
 
 # def get_user_username(request, user_name):
 #     user = User.objects.filter(username=user_name).first()
@@ -370,7 +384,7 @@ def update_user(request, user_id):
                 user.emailAddress = emailAddress
             user.save()
             # output after update
-            return get_user(request, user_id)
+            return get_user_with_id(request, user_id)
         else:
             return JsonResponse(data={'ok':False, 'message': 'invalid request'})    
 

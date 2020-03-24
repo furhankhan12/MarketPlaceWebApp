@@ -3,7 +3,7 @@ from datetime import datetime
 import urllib.request, json
 import urllib.parse
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-from .forms import SignUpForm, LoginForm
+from .forms import SignUpForm, LoginForm, ListingForm
 from django.contrib import messages 
 # Create your views here.
 
@@ -34,9 +34,58 @@ def home(request):
 def item(request, pk):
     # time = datetime.now()
     listing_json = get_listing(request, pk)
-    listing_list = listing_json['listing']
     if listing_json['ok']:
+        listing_list = listing_json['listing']
         return render(request, 'details.html', {'listing':listing_list})
+    else:
+        return render(request, '404_listing.html')
+
+def get_user_with_auth(request):
+    auth = request.COOKIES.get('auth') 
+    auth_data = [
+        ('auth',auth),
+    ]
+    data = urllib.parse.urlencode(auth_data).encode("utf-8")
+    req = urllib.request.Request('http://exp:8000/users/get_user_with_auth')
+    with urllib.request.urlopen(req,data=data) as f:
+        resp_json = json.loads(f.read().decode('utf-8'))  
+    if resp_json['ok']:
+        return resp_json
+    else:
+        return JsonResponse(data={'ok':False})
+
+def new_listing(request):
+    form = ListingForm()
+
+    if request.method == 'POST':
+        form = ListingForm(request.POST)
+        if form.is_valid():
+            form_data = form.cleaned_data
+            seller = get_user_with_auth(request)
+            if seller['ok']:
+                seller_id = seller['user'][0]['id']
+                listing_data = [
+                    ('name',form_data['name']),
+                    ('color',form_data['color']),
+                    ('price', form_data['price']),
+                    ('description',form_data['description']),
+                    ('seller_id',seller_id)
+                ]
+                data = urllib.parse.urlencode(listing_data).encode("utf-8")
+                req = urllib.request.Request('http://exp:8000/listings/new')
+                with urllib.request.urlopen(req,data=data) as f:
+                    resp = json.loads(f.read().decode('utf-8'))
+                    print(resp)
+                    if resp['ok']==True:
+                        print(resp)
+                        return redirect('item/' + str(resp['listing'][0]['id']))
+                    else:
+                        messages.error(request, resp['message'])
+        else:
+            return render(request,'home.html')             
+    return render(request, 'new_listing.html', {'form': form})
+
+
 def search_results(request):
     current_query = str(request.GET['Query'])
     if current_query=='':
@@ -52,6 +101,7 @@ def search_results(request):
         else:
             return redirect('/home/')
     return render('search.html',{'listings':{}})
+
 
 def create_account(request):
     form = SignUpForm()
@@ -81,7 +131,6 @@ def create_account(request):
                 else:
                     messages.error(request, resp['message'])
                 
-        
     return render(request, 'signup.html', {'form': form})
 
 def login(request):
@@ -107,11 +156,12 @@ def login(request):
                     response = HttpResponseRedirect('/home')
                     response.set_cookie("auth", authenticator)
                     print(resp)
+                    print(response)
                     return response
                 else:
-                    messages.error(request, resp['message'])
-        
-    return render(request, 'signup.html', {'form': form})
+                    messages.error(request, resp['message'])   
+    return render(request, 'login.html', {'form': form})
+
 def logout(request):
     auth = request.COOKIES.get('auth') 
     auth_data = [

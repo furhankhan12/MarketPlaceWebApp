@@ -266,12 +266,31 @@ class UpdateOrderTestCase(TestCase):
 #user-model tests
 class getUserTestCase(TestCase):
     def test_fail(self):
-        response = self.client.get(reverse('get_user',kwargs={'user_id':500}))
+        response = self.client.get(reverse('get_user_id',kwargs={'user_id':500}))
         self.assertContains(response,'not found')
     def test_success(self):
         test_user = User.objects.create(username='Testuser')
-        response = self.client.get(reverse('get_user',kwargs={'user_id':test_user.pk}))
+        response = self.client.get(reverse('get_user_id',kwargs={'user_id':test_user.pk}))
         self.assertContains(response,'Testuser')
+
+class getUserTestCase2(TestCase):
+    def test_fail(self):
+        response = self.client.get(reverse('get_user_auth',kwargs={'auth':500}))
+        self.assertContains(response,'not found')
+    def test_success(self):
+        account = self.client.post(reverse('create_account'),data= {
+            'username': 'testusername',
+            'password' : 'testpassword',
+            'firstName' : 'test',
+            'lastName': 'user 1', 
+            'emailAddress': '123@gmail.com'
+        })
+        login = self.client.post(reverse('login'), data = {
+            'username': 'testusername',
+            'password' : 'testpassword',
+        })
+        response = self.client.get(reverse('get_user_auth',kwargs={'auth':login.json()['auth']}))
+        self.assertContains(response,'testusername')
 
 class createAccountTestCase(TestCase):
     def test_success(self):
@@ -324,7 +343,6 @@ class loginTestCase(TestCase):
             'username': 'testusername',
             'password' : 'testpassword',
         })
-        
         self.assertContains(response,"success")
 
     def test_fail(self):
@@ -420,7 +438,7 @@ class logoutTestCase2(TestCase):
 
 class UpdateUserTestCase(TestCase):
     def test_fail(self):
-        response = self.client.get(reverse('get_user',kwargs={'user_id':500}))
+        response = self.client.get(reverse('update_user',kwargs={'user_id':500}))
         self.assertContains(response,'not found')
     def test_success(self):
         test_user = User.objects.create(username='Testuser')

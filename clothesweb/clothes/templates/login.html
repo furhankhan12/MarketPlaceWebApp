@@ -1,34 +1,33 @@
-<head>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-</head>
-{% if messages %}
-    {% for message in messages %}
-        <div class="alert {% if message.tags %} alert-{{ message.tags }}{% endif %}">{{ message|safe }}</div>
-    {% endfor %}
-{% endif %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-            <li class="nav-item active">
-                <a class="nav-link" href="/home/">Home </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Other Link</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Another Link</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Final Link</a>
-            </li>
-        </ul>
-    </div>
-</nav>
-{% block content %}
-<form method="POST">
-    {% csrf_token %}
-    {{form.as_ul}}
-    <input type="submit" value="Submit">
-</form>
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
 
- {% endblock %}
+{% block content %}
+{% if request.COOKIES.auth %}
+  <div class="content-section col-sm-10 mx-auto pt-3 pb-3">
+    <h2>Looks like you are already logged in!</h2>
+    <small class="text-muted">
+        <a class="ml-2" href="/home">Go to the home page</a>
+      </small>
+    <small class="text-muted">
+      <a class="ml-2" href="/users/logout">Log out</a>
+    </small>
+  </div>
+{% else %}
+<div class="container mx-auto pt-3">
+    <h2 style="text-align: center;">LOGIN</h2>
+    <hr class="trans-grow">
+  </div>
+  <div class="content-section col-sm-6 mx-auto pt-3">
+    <form method="POST">
+      {% csrf_token %} 
+      <fieldset class="form-group">
+        {{ form|crispy }}
+      </fieldset>
+      <div class="form-group mx-auto">
+        <button class="btn btn-outline-dark" type="submit">Login</button>
+      </div>
+    </form>
+  </div>
+  <br></br>
+{% endif %}
+{% endblock content %}
