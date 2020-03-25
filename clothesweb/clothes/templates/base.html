@@ -15,46 +15,29 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#">Another Link</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Final Link</a>
-                    </li>
                 </ul>
+                <div class="navbar-nav ml-auto">
+                    {% if request.COOKIES.auth %}
+                      <div class="dropdown-divider"></div>
+                      <a class="nav-link" href="#">Profile</a>
+                      <a class="nav-link" href="/users/logout">Logout</a>
+                    {% else %}
+                      <div class="dropdown-divider"></div>
+                      <a class="nav-link" href="/users/signup">Sign Up</a>
+                      <a class="nav-link" href="/users/login">Login</a>
+                    {% endif %}
+                </div>
             </div>
         </nav>
         <div class="container">
             <div class="row">
-                <div class="col-md-10 mx-auto">
+                <div class="col-md-10 mx-auto pt-2">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %} alert-{{ message.tags }}{% endif %}" role="alert">{{ message|safe }}</div>
+                        {% endfor %}
+                    {% endif %}
                     <!--- From https://bootsnipp.com/snippets/35V6b-->
-                    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-                    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-                    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-                    <!------ Include the above in your HEAD tag ---------->
-                    
-                    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
-                    <div class="container">
-                        <br/>
-                        <div class="row justify-content-center">
-                                            <div class="col-12 col-md-10 col-lg-8">
-                                                <form class="card card-sm" action="/search/results/" method="GET">
-                                                    <div class="card-body row no-gutters align-items-center">
-                                                        <div class="col-auto">
-                                                            <i class="fas fa-search h4 text-body"></i>
-                                                        </div>
-                                                        <!--end of col-->
-                                                        <div class="col">
-                                                            <input class="form-control form-control-lg form-control-borderless" type="search" placeholder="Search for clothing items" name = "Query">
-                                                        </div>
-                                                        <!--end of col-->
-                                                        <div class="col-auto">
-                                                            <button class="btn btn-lg btn-success" type="submit">Search</button>
-                                                        </div>
-                                                        <!--end of col-->
-                                                    </div>
-                                                </form>
-                                            </div>
-                                            <!--end of col-->
-                                        </div>
-                    </div>
                 {% block content %}
                 
                 {% endblock %}

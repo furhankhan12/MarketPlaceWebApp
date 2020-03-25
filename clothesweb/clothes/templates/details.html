@@ -2,16 +2,73 @@
 
 {% block content %}
 <div style="text-align: center; padding-top:24px;">
-  <h2> Welcome to the details page of the application </h2>    
+  <h2>Details</h2>    
   {% if listing %}
     {% for item in listing %}
-      <!-- <p>{{ listing }}</p> -->
-      <p>Everything: {{ item }}</p>
+      <!-- <p>Everything: {{ item }}</p>
       <p>Name: {{ item.name }}</p>
       <p>Description: {{ item.description }}</p>
       <p>Price: {{ item.price }}</p>
       <p>Color: {{ item.color }}</p>
-      <p>Seller Id: {{ item.seller_id }}</p>
+      <p>Seller Id: {{ item.seller_id }}</p> -->
+      <div class="container">
+        <div class="row">
+            <div class="col-sm-4" style="padding-top:16px;">
+              <img style="width:100%" src="http://placehold.it/500x325" alt="">
+            </div>
+            <div class="col-sm-8" style="padding-top:16px;">
+                <div>
+                    <div style="float:left">
+                        <h3 style="text-align: left;">{{ item.name }}</h3>
+                        <h3 style="text-align: left;">${{ item.price }}</h3>
+                    </div>
+                    {% if user_id == item.seller_id %}
+                    <table style="float:right">
+                        <td>
+                            <form action="{% url 'delete_listing' listing_id=item.id %}" method='POST'>
+                                {% csrf_token %}
+                                <input class="btn btn-danger btn-sm" type="submit" value="Delete">
+                            </form>
+                        </td>
+                        <td>
+                            <form action="{% url 'update_listing' listing_id=item.id %}">
+                                <input class="btn btn-warning btn-sm" type="submit" value="Edit">
+                            </form>
+                        </td>
+                    </table>
+                    {% endif %}
+                </div>
+                <div style="clear:none;padding-top:72px;">
+                    <hr>
+                </div>
+                <!-- <hr> -->
+                <table class="table table-borderless table-sm">
+                    <tbody>
+                        <tr>
+                            <th>Sold by</th>
+                        </tr>
+                        <tr>
+                            <td>Seller #{{ item.seller_id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Color</th>
+                        </tr>
+                        <tr>
+                            <td>{{ item.color }}</td>
+                        </tr>
+                        <tr>
+                          <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>{{ item.description }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+
     {% endfor %}
   {% endif %}  
   <a href={% url 'home' %}>Return to Home Page</a>

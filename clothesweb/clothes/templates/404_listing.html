@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="text-align: center; padding-top:24px;">
+  <p>We're sorry. A listing with that id does not exist!</p>
+  <a href={% url 'home' %}>Return to home page to browse all products!</a>
+</div>
+{% endblock %}
