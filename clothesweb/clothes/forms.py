@@ -1,15 +1,21 @@
 from django import forms
 
 class SignUpForm(forms.Form):
-    username = forms.CharField(max_length=30)
-    password = forms.CharField(max_length=500,widget=forms.PasswordInput)
-    firstName = forms.CharField(max_length=30)
-    lastName = forms.CharField(max_length=30)
-    emailAddress = forms.EmailField(max_length=50)
+    username = forms.CharField(label="Username", 
+                                max_length=30)
+    password = forms.CharField(label="Password", 
+                                max_length=500, 
+                                widget=forms.PasswordInput)
+    firstName = forms.CharField(label="First name", 
+                                max_length=30)
+    lastName = forms.CharField(label="Last name", 
+                                max_length=30)
+    emailAddress = forms.EmailField(label="Email address", 
+                                widget=forms.EmailInput)
 
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length=30)
-    password = forms.CharField(max_length=500,widget=forms.PasswordInput)
+    username = forms.CharField(label="Username", max_length=30)
+    password = forms.CharField(label="Password", max_length=500, widget=forms.PasswordInput)
 
 class PasswordResetEmailForm(forms.Form):
     emailAddress = forms.EmailField(max_length=50)
