@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-{% if request.COOKIES.auth %}
+{% if authenicated %}
   <div class="content-section col-sm-10 mx-auto pt-3 pb-3">
     <h2>Looks like you are already logged in!</h2>
     <small class="text-muted">

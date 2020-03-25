@@ -87,27 +87,18 @@
         <p class="lead">To our clothing marketplace app</p>
 
         {% if not authenticated %}
-        <a class="button" href = '/users/login'>Login</a>
-        <a class="button" href="/users/signup">Sign Up</a>
-        
-        {% endif %}
-        {% if request.COOKIES.auth %}
-          <a type="button" class="btn btn-primary" href="/listing/new">Create a listing</a>
+        <a type="button" class="btn btn-primary"  href="/users/signup">Sign Up</a>
+        <a type="button" class="btn btn-secondary"  href = '/users/login'>Login</a>
+        {% else %}
+        <a type="button" class="btn btn-primary" href="/listing/new">Create a listing</a>
         {% endif %}
 
-
-        {% if  authenticated %}
-      
-      <!-- Jumbotron Header -->
-      <header class="jumbotron my-4">
-        <h1 class="display-3">User Info</h1>
+      {% if authenticated %}
+        <h6 class="pt-5">User Info</h6>
         <p class="lead">{{ user_info }}</p>
-        <a class="button" href = '/users/update_information'>Edit Information</a>
-        
-        
-        
-      </header>
+        <a type="button" class="btn btn-secondary" href='/users/update_information'>Edit Information</a>
       {% endif %}
+    </header>
       <!-- Page Features -->
       <!-- <div class="button-group filters-button-group text-center">
           <button class="button is-checked" data-filter="*">show all</button>
@@ -120,7 +111,7 @@
           <a type="button" class="btn btn-primary" href="/users/signup">Sign Up</a>
           <a type="button" class="btn btn-secondary" href="/users/login">Login</a>
         {% endif %}
-      </header>
+      <!-- </header> -->
       
       <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
       <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>

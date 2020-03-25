@@ -223,8 +223,10 @@ def search_results(request):
 
 
 def create_account(request):
+    authenticated = False
+    if request.COOKIES.get('auth'):
+        authenticated=True
     form = SignUpForm()
-    
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -256,9 +258,12 @@ def create_account(request):
                 else:
                     messages.warning(request, resp['message'])
                 
-    return render(request, 'signup.html', {'form': form})
+    return render(request, 'signup.html', {'form': form, 'authenticated':authenticated})
 
 def login(request):
+    authenticated = False
+    if request.COOKIES.get('auth'):
+        authenticated=True
     form = LoginForm()
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -281,7 +286,7 @@ def login(request):
             else:
                 messages.error(request, resp['message'])
         
-    return render(request, 'login.html', {'form': form})
+    return render(request, 'login.html', {'form': form, 'authenticated':authenticated})
 
        
 
@@ -326,7 +331,7 @@ def reset_password_email(request):
                     return redirect("/home")
                 else:
                     messages.error(request, resp['message']) 
-    return render(request, 'reset_password_email.html', {'form': form})
+    return render(request, 'reset_password.html', {'form': form})
 def reset_password(request,token):
     
     form = PassWordResetForm()
