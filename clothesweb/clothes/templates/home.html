@@ -91,6 +91,9 @@
         <a class="button" href="/users/signup">Sign Up</a>
         
         {% endif %}
+        {% if request.COOKIES.auth %}
+          <a type="button" class="btn btn-primary" href="/listing/new">Create a listing</a>
+        {% endif %}
 
 
         {% if  authenticated %}
@@ -102,12 +105,13 @@
         <a class="button" href = '/users/update_information'>Edit Information</a>
         
         
+        
       </header>
       {% endif %}
       <!-- Page Features -->
       <!-- <div class="button-group filters-button-group text-center">
           <button class="button is-checked" data-filter="*">show all</button>
-          <button class="button" data-filter=".20">price</button> <!-- just to check if filter works-->
+          <button class="button" data-filter=".20">price</button>  just to check if filter works-->
           <!-- <div class="btn-group" role="group">
 
         {% if request.COOKIES.auth %}
@@ -149,12 +153,12 @@
       </div>
       <!-- Page Features -->
       <div class="button-group filters-button-group text-center mb-2">
-          <button class="btn btn-primary is-checked" data-filter="*">Show All</button>
+          <!-- <button class="btn btn-primary is-checked" data-filter="*">Show All</button>
           <div class="btn-group" role="group">
 
           <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Price
-          </button> -->
+          </button>  -->
             <!-- <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
               <a class="dropdown-item" data-filter=".price10">$0-$10</a>
               <a class="dropdown-item" data-filter=".price1020">$10-$20</a>

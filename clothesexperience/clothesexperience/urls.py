@@ -16,7 +16,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from clothes import views
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('listings', views.get_all_listings, name='listings'),
@@ -34,3 +33,4 @@ urlpatterns = [
     path('users/update_information',views.update_user_profile, name='update_user_profile'),
     path('users/get_user',views.get_user,name='get_user'),
     path('users/get_user_with_auth',views.get_user_with_auth,name='get_user_with_auth'),
+]

@@ -65,7 +65,6 @@ def home(request):
         return render(request, 'home.html', {'time':time, 'listings':listings_list, 'authenticated':authenticated, 'user_info':user_info['user']})
     if listings_json['ok']:
         return render(request, 'home.html', {'time':time, 'listings':listings_list, 'authenticated':authenticated})
-    # else:
 
 def item(request, pk):
     # time = datetime.now()
@@ -215,7 +214,7 @@ def search_results(request):
 
             return render(request, 'search.html', {'listings':search_list, 'authenticated':authenticated})
 
-            print(search_list)
+            # print(search_list)
             return render(request, 'home.html', {'listings':search_list})
 
         else:
