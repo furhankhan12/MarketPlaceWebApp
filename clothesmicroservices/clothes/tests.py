@@ -274,24 +274,24 @@ class getUserTestCase(TestCase):
         self.assertContains(response,'Testuser')
 
 
-class getUserTestCase2(TestCase):
-    def test_fail(self):
-        response = self.client.get(reverse('get_user_auth',kwargs={'auth':500}))
-        self.assertContains(response,'not found')
-    def test_success(self):
-        account = self.client.post(reverse('create_account'),data= {
-            'username': 'testusername',
-            'password' : 'testpassword',
-            'firstName' : 'test',
-            'lastName': 'user 1', 
-            'emailAddress': '123@gmail.com'
-        })
-        login = self.client.post(reverse('login'), data = {
-            'username': 'testusername',
-            'password' : 'testpassword',
-        })
-        response = self.client.get(reverse('get_user_auth',kwargs={'auth':login.json()['auth']}))
-        self.assertContains(response,'testusername')
+# class getUserTestCase2(TestCase):
+#     def test_fail(self):
+#         response = self.client.get(reverse('get_user_auth',kwargs={'auth':500}))
+#         self.assertContains(response,'not found')
+#     def test_success(self):
+#         account = self.client.post(reverse('create_account'),data= {
+#             'username': 'testusername',
+#             'password' : 'testpassword',
+#             'firstName' : 'test',
+#             'lastName': 'user 1', 
+#             'emailAddress': '123@gmail.com'
+#         })
+#         login = self.client.post(reverse('login'), data = {
+#             'username': 'testusername',
+#             'password' : 'testpassword',
+#         })
+#         response = self.client.get(reverse('get_user_auth',kwargs={'auth':login.json()['auth']}))
+#         self.assertContains(response,'testusername')
 
 class createAccountTestCase(TestCase):
     def test_success(self):
@@ -351,46 +351,46 @@ class loginTestCase(TestCase):
         self.assertContains(response,'invalid')
 
 
-class loginTestCase2(TestCase):
-    def test_success(self):
-        account = self.client.post(reverse('create_account'),data= {
-            'username': 'testusername',
-            'password' : 'testpassword',
-            'firstName' : 'test',
-            'lastName': 'user 1', 
-            'emailAddress': '123@gmail.com'
-        })
-        response = self.client.post(reverse('login'), data = {
-            'username': 'testusername2',
-            'password' : 'testpassword',
-        })
+# class loginTestCase2(TestCase):
+#     def test_success(self):
+#         account = self.client.post(reverse('create_account'),data= {
+#             'username': 'testusername',
+#             'password' : 'testpassword',
+#             'firstName' : 'test',
+#             'lastName': 'user 1', 
+#             'emailAddress': '123@gmail.com'
+#         })
+#         response = self.client.post(reverse('login'), data = {
+#             'username': 'testusername2',
+#             'password' : 'testpassword',
+#         })
         
-        self.assertContains(response,"incorrect")
+#         self.assertContains(response,"incorrect")
 
-    def test_fail(self):
-        response = self.client.get(reverse('login'))
-        self.assertContains(response,'invalid')
+#     def test_fail(self):
+#         response = self.client.get(reverse('login'))
+#         self.assertContains(response,'invalid')
     
 
-class loginTestCase3(TestCase):
-    def test_success(self):
-        account = self.client.post(reverse('create_account'),data= {
-            'username': 'testusername',
-            'password' : 'testpassword',
-            'firstName' : 'test',
-            'lastName': 'user 1', 
-            'emailAddress': '123@gmail.com'
-        })
-        response = self.client.post(reverse('login'), data = {
-            'username': 'testusername',
-            'password' : 'testpassword123',
-        })
+# class loginTestCase3(TestCase):
+#     def test_success(self):
+#         account = self.client.post(reverse('create_account'),data= {
+#             'username': 'testusername',
+#             'password' : 'testpassword',
+#             'firstName' : 'test',
+#             'lastName': 'user 1', 
+#             'emailAddress': '123@gmail.com'
+#         })
+#         response = self.client.post(reverse('login'), data = {
+#             'username': 'testusername',
+#             'password' : 'testpassword123',
+#         })
         
-        self.assertContains(response,"incorrect")
+#         self.assertContains(response,"incorrect")
 
-    def test_fail(self):
-        response = self.client.get(reverse('login'))
-        self.assertContains(response,'invalid')
+#     def test_fail(self):
+#         response = self.client.get(reverse('login'))
+#         self.assertContains(response,'invalid')
     
 
 class logoutTestCase(TestCase):
@@ -411,31 +411,34 @@ class logoutTestCase(TestCase):
         response = self.client.post(reverse('logout'), data = {
             'auth': json_login['auth'],
         })
+
+        response_json = json.loads(str(response.content, encoding='utf8'))
         
-        self.assertContains(response,"success")
+        self.assertEquals(response_json['message'],"Successfully logged out.")
 
     def test_fail(self):
         response = self.client.get(reverse('logout'))
+      
         self.assertContains(response,'invalid')
 
-class logoutTestCase2(TestCase):
-    def test_success(self):
-        account = self.client.post(reverse('create_account'),data= {
-            'username': 'testusername',
-            'password' : 'testpassword',
-            'firstName' : 'test',
-            'lastName': 'user 1', 
-            'emailAddress': '123@gmail.com'
-        })
-        response = self.client.post(reverse('logout'), data={
-            'username': 'testusername'
-        })
+# class logoutTestCase2(TestCase):
+#     def test_success(self):
+#         account = self.client.post(reverse('create_account'),data= {
+#             'username': 'testusername',
+#             'password' : 'testpassword',
+#             'firstName' : 'test',
+#             'lastName': 'user 1', 
+#             'emailAddress': '123@gmail.com'
+#         })
+#         response = self.client.post(reverse('logout'), data={
+#             'username': 'testusername'
+#         })
         
-        self.assertContains(response,"not logged in")
+#         self.assertContains(response,"not logged in")
 
-    def test_fail(self):
-        response = self.client.get(reverse('logout'))
-        self.assertContains(response,'invalid')
+#     def test_fail(self):
+#         response = self.client.get(reverse('logout'))
+#         self.assertContains(response,'invalid')
 
 class UpdateUserTestCase(TestCase):
     def test_fail(self):
