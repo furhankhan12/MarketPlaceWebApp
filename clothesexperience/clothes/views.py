@@ -126,6 +126,44 @@ def reset_password_email(request):
         return JsonResponse(data = resp_json)
     else:
         return JsonResponse(data={'ok':True, 'message': 'Invalid request'})
+def get_user(request):
+    if request.method == "POST":
+        auth = request.POST.get('auth')
+        auth_data = [
+        ('auth',auth),
+        ]
+        data = urllib.parse.urlencode(auth_data).encode("utf-8")
+        req = urllib.request.Request('http://models:8000/api/v1/users/get_user')
+        with urllib.request.urlopen(req,data=data) as f:
+            resp_json = json.loads(f.read().decode('utf-8'))  
+        return JsonResponse(data = resp_json)
+    else:
+        return JsonResponse(data={'ok':False, 'message': 'Invalid request'}) 
+    
+
+def update_user_profile(request):
+    if request.method == "POST":
+        auth_token = request.POST.get('auth')
+        emailAddress = request.POST.get('emailAddress')
+        firstName = request.POST.get('firstName')
+        lastName = request.POST.get('lastName')
+        update_data = [
+            ('emailAddress',emailAddress),
+            ('firstName',firstName),
+            ('lastName',lastName),
+            ('auth',auth_token),
+        ]
+        data = urllib.parse.urlencode(update_data).encode("utf-8")
+        req = urllib.request.Request('http://models:8000/api/v1/users/update_information')
+        with urllib.request.urlopen(req,data=data) as f:
+            resp_json = json.loads(f.read().decode('utf-8'))  
+        return JsonResponse(data = resp_json)
+    else:
+        return JsonResponse(data={'ok':True, 'message': 'Invalid request'})
+
+
+        
+
 
         
 

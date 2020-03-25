@@ -3,7 +3,7 @@ from datetime import datetime
 import urllib.request, json
 import urllib.parse
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-from .forms import SignUpForm, LoginForm, PasswordResetEmailForm, PassWordResetForm
+from .forms import SignUpForm, LoginForm, PasswordResetEmailForm, PassWordResetForm, UpdateUserForm
 from django.contrib import messages 
 from django.core.mail import send_mail
 from django.conf import settings
@@ -23,6 +23,19 @@ def get_listing(request, listing_id):
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
     return resp
+def get_user(request):
+    if request.COOKIES.get('auth'):
+        auth = request.COOKIES.get('auth') 
+        auth_data = [
+        ('auth',auth),
+        ]
+        data = urllib.parse.urlencode(auth_data).encode("utf-8")
+        req = urllib.request.Request('http://exp:8000/users/get_user')
+        with urllib.request.urlopen(req,data=data) as f:
+            resp_json = json.loads(f.read().decode('utf-8'))  
+        if resp_json['ok']:
+            return resp_json
+    return {'ok':False}
 
 def home(request):
     listings_json = get_all_listings(request)
@@ -30,7 +43,10 @@ def home(request):
     authenticated = False
     if request.COOKIES.get('auth'):
         authenticated=True
+    user_info = get_user(request)
     time = datetime.now()
+    if listings_json['ok'] and user_info['ok']:
+        return render(request, 'home.html', {'time':time, 'listings':listings_list, 'authenticated':authenticated, 'user_info':user_info['user']})
     if listings_json['ok']:
         return render(request, 'home.html', {'time':time, 'listings':listings_list, 'authenticated':authenticated})
     # else:
@@ -85,7 +101,7 @@ def create_account(request):
             req = urllib.request.Request('http://exp:8000/users/signup')
             with urllib.request.urlopen(req,data=data) as f:
                 resp = json.loads(f.read().decode('utf-8'))
-                print(resp)
+                # print(resp)
                 if resp['ok']==True:
                     subject = 'Thank you for registering to our site'
                     message = ' it  means the world to us '
@@ -122,7 +138,7 @@ def login(request):
                 authenticator = resp['auth']
                 response = HttpResponseRedirect('/home')
                 response.set_cookie("auth", authenticator)
-                print(resp)
+                # print(resp)
                 return response
             else:
                 messages.error(request, resp['message'])
@@ -170,6 +186,7 @@ def reset_password_email(request):
                     messages.error(request, resp['message']) 
     return render(request, 'reset_password_email.html', {'form': form})
 def reset_password(request,token):
+    
     form = PassWordResetForm()
     if request.method == 'POST':
         form = PassWordResetForm(request.POST)
@@ -189,6 +206,35 @@ def reset_password(request,token):
                 else:
                     messages.error(request, resp['message']) 
     return render(request, 'reset_password.html', {'form': form})
+
+def update_user_profile(request):
+    form = UpdateUserForm()
+    if request.method == 'POST':
+        auth = request.COOKIES.get('auth') 
+        form = UpdateUserForm(request.POST)
+        if form.is_valid():
+            form_data = form.cleaned_data
+            updated_data = [
+            ('lastName',form_data['lastName']),
+            ('firstName',form_data['firstName']),
+            ('emailAddress',form_data['emailAddress']),
+            ('auth',auth),
+        ]
+            if not form_data['lastName']and not form_data['firstName'] and not form_data['emailAddress'] :
+                messages.error(request,"No changes applied")
+                return redirect("/home")
+            data = urllib.parse.urlencode(updated_data).encode("utf-8")
+            req = urllib.request.Request('http://exp:8000/users/update_information')
+            with urllib.request.urlopen(req,data=data) as f:
+                resp = json.loads(f.read().decode('utf-8'))
+                if resp['ok']==True:
+                    messages.success(request,"Profile has been updated")
+                    return redirect("/home")
+                else:
+                    messages.error(request, resp['message']) 
+    return render(request, 'update_user.html', {'form': form}) 
+
+
 
 
 

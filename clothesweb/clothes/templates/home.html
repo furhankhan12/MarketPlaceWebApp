@@ -111,8 +111,19 @@
         <a class="button" href="/users/signup">Sign Up</a>
         
         {% endif %}
+
+
+        {% if  authenticated %}
+      
+      <!-- Jumbotron Header -->
+      <header class="jumbotron my-4">
+        <h1 class="display-3">User Info</h1>
+        <p class="lead">{{ user_info }}</p>
+        <a class="button" href = '/users/update_information'>Edit Information</a>
+        
+        
       </header>
-  
+      {% endif %}
       <!-- Page Features -->
       <!-- <div class="button-group filters-button-group text-center">
           <button class="button is-checked" data-filter="*">show all</button>
@@ -149,7 +160,7 @@
  
       {% if not listings %}
       <br>
-      <h5 class="text-center">THERE ARE CURRENTLY NO LISTINGS </h5>
+      <h5 class="text-center">There Are Currently No Listings. Feel Free to Change That! </h5>
       {% endif %}
       {% for item in listings %}
         <div class='element-item {% if item.price >= 20 %}price20{% endif %}{% if 10 > item.price %}price10{% endif %}{% if item.price > 10 and 20 > item.price %}price1020{% endif %}'>
