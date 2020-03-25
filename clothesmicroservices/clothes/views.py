@@ -315,7 +315,7 @@ def login(request):
         else:
             return JsonResponse(data={'ok':False, 'message': 'Incorrect username or password.'})
     else:
-        return JsonResponse(data={'ok':False, 'message': 'Invalid request'})       
+        return JsonResponse(data={'ok':False, 'message': 'invalid request'})       
 
 def logout(request):
     if request.method == "POST":
