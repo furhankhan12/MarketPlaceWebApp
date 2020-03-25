@@ -38,6 +38,7 @@ def get_listing(request, listing_id):
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
     return resp
+
 def get_user(request):
     if request.COOKIES.get('auth'):
         auth = request.COOKIES.get('auth') 
@@ -60,11 +61,12 @@ def home(request):
     if request.COOKIES.get('auth'):
         authenticated=True
     user_info = get_user(request)
-    time = datetime.now()
+    # user_info = get_user_with_auth(request)
     if listings_json['ok'] and user_info['ok']:
-        return render(request, 'home.html', {'time':time, 'listings':listings_list, 'authenticated':authenticated, 'user_info':user_info['user']})
+        return render(request, 'home.html', {'listings':listings_list, 'authenticated':authenticated, 'user_info':user_info['user']})
+        # return render(request, 'home.html', {'listings':listings_list, 'authenticated':authenticated, 'user_info':user_info['user'][0]['id']})
     if listings_json['ok']:
-        return render(request, 'home.html', {'time':time, 'listings':listings_list, 'authenticated':authenticated})
+        return render(request, 'home.html', {'listings':listings_list, 'authenticated':authenticated})
 
 def item(request, pk):
     # time = datetime.now()
@@ -160,8 +162,7 @@ def get_user_with_auth(request):
         else:
             return resp_json
     else:
-        resp = json.loads(json.dumps({'ok':False}))
-        return resp
+        return {'ok':False}
 
 def new_listing(request):
     form = ListingForm()
@@ -288,7 +289,6 @@ def login(request):
         
     return render(request, 'login.html', {'form': form, 'authenticated':authenticated})
 
-       
 
 def logout(request):
     auth = request.COOKIES.get('auth') 

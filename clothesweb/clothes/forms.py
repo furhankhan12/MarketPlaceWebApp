@@ -28,10 +28,6 @@ class UpdateUserForm(forms.Form):
     lastName = forms.CharField(label="Last Name",max_length=30, required=False)
     emailAddress = forms.EmailField(label="Email Address", max_length=50, required=False)
 
-class LoginForm(forms.Form):
-    username = forms.CharField(label="Username", max_length=30)
-    password = forms.CharField(label="Password", max_length=500, widget=forms.PasswordInput)
-
 class ListingForm(forms.Form):
     name = forms.CharField(label="Product name", max_length=40)
     price = forms.IntegerField(label="Price")
