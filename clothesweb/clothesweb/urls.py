@@ -20,7 +20,10 @@ from clothes import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('home/', views.home, name='home'), 
-    path('item/<int:pk>', views.item, name='item'),
+    path('listing/<int:listing_id>', views.listing, name='listing'),
+    path('listing/<int:listing_id>/update', views.update_listing, name='update_listing'),
+    path('listing/<int:listing_id>/delete', views.delete_listing, name='delete_listing'),
+    path('listing/new', views.new_listing, name='new_listing'),
     path('search/results/',views.search_results, name='search'),
     path('users/signup/',views.create_account, name='create_account'),
     path('users/login',views.login,name='login'),

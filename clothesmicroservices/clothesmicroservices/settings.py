@@ -26,7 +26,7 @@ SECRET_KEY = '*h$_$%a6=@b5*94()+i%zowrdo!#)vxp-*kv3j^j!p=bz#zdrk'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'models', 'localhost'
+    'models', 'localhost', '127.0.0.1'
 ]
 
 AUTH_USER_MODEL = 'clothes.User'
