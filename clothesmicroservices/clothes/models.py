@@ -21,6 +21,17 @@ class Authenticator(models.Model):
     user_id = models.IntegerField()
     date_created = models.DateTimeField(auto_now=True)
 
+
+class ResetToken(models.Model):
+    token = models.CharField(primary_key=True,max_length=64)
+    user_id = models.IntegerField()
+    data_created = models.DateTimeField(auto_now=True)
+
+# class Profile(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
+#     homeAddress 
+#     phoneNumber
+
 class Address(models.Model):
     id = models.AutoField(primary_key=True)
     street1 = models.CharField(max_length=40)
@@ -28,6 +39,7 @@ class Address(models.Model):
     city = models.CharField(max_length=40)
     state = models.CharField(max_length=2)
     zipCode = models.IntegerField()
+
 
 class Profile(models.Model):
     id = models.AutoField(primary_key=True)

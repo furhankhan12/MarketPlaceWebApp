@@ -15,6 +15,12 @@ urlpatterns = [
     path('orders/new', views.new_order, name='new_order'),
 
     path('users/create_account', views.create_account, name='create_account'),
+    path('users/login',views.login, name="login"),
+    path('users/logout',views.logout,name='logout'),
+    path('users/reset_password',views.reset_user_password,name='reset_password'),
+    path('users/generate_token',views.generate_token,name='generate_token'),
+    path('users/update_information',views.update_user_profile,name='update_user_profile'),
+    path('users/get_user',views.get_user,name='get_user'),
     path('users/login', views.login, name='login'),
     path('users/logout', views.logout, name='logout'),
     # path('users', views.get_all_users, name='users_list'),

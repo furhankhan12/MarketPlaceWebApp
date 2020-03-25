@@ -263,7 +263,7 @@ class UpdateOrderTestCase(TestCase):
         )
         self.assertContains(response,"POST")
 
-#user-model tests
+
 class getUserTestCase(TestCase):
     def test_fail(self):
         response = self.client.get(reverse('get_user_id',kwargs={'user_id':500}))
@@ -272,6 +272,7 @@ class getUserTestCase(TestCase):
         test_user = User.objects.create(username='Testuser')
         response = self.client.get(reverse('get_user_id',kwargs={'user_id':test_user.pk}))
         self.assertContains(response,'Testuser')
+
 
 class getUserTestCase2(TestCase):
     def test_fail(self):
@@ -416,7 +417,7 @@ class logoutTestCase(TestCase):
     def test_fail(self):
         response = self.client.get(reverse('logout'))
         self.assertContains(response,'invalid')
-    
+
 class logoutTestCase2(TestCase):
     def test_success(self):
         account = self.client.post(reverse('create_account'),data= {
@@ -586,6 +587,82 @@ class UpdateProfileTestCase(TestCase):
             data={'phoneNumber':'234-2345-2345'})
         #Response returns get from db with the new item 
         self.assertContains(response,'234-2345-2345')
+
+
+class getUserTestCase(TestCase):
+
+    def test_success(self):
+        account = self.client.post(reverse('create_account'),data= {
+            'username': 'testusername',
+            'password' : 'testpassword',
+            'firstName' : 'test',
+            'lastName': 'user 1', 
+            'emailAddress': '123@gmail.com'
+        })
+        login = self.client.post(reverse('login'), data = {
+            'username': 'testusername',
+            'password' : 'testpassword',
+        })
+        json_login = json.loads(str(login.content, encoding='utf8'))
+       
+        response_get = self.client.post(reverse('get_user'), data = {
+            'auth': json_login['auth'],
+        })
+        
+        response_json = json.loads(str(response_get.content, encoding='utf8'))
+
+        self.assertDictEqual(response_json,{'ok': True, 'user': {'First Name': 'test', 'Email Address': '123@gmail.com', 'Last Name': 'user 1'}})
+
+
+    def test_fail(self):
+        response = self.client.get(reverse('get_user'))
+        self.assertContains(response,'invalid')
+
+class ChangeUserPasswordTestCase(TestCase):
+
+    def test_success(self):
+        account = self.client.post(reverse('create_account'),data= {
+            'username': 'testusername',
+            'password' : 'testpassword',
+            'firstName' : 'test',
+            'lastName': 'user 1', 
+            'emailAddress': '123@gmail.com'
+        })
+        login = self.client.post(reverse('login'), data = {
+            'username': 'testusername',
+            'password' : 'testpassword',
+        })
+        json_login = json.loads(str(login.content, encoding='utf8'))
+       
+        response_token = self.client.post(reverse('generate_token'), data = {
+            'emailAddress' : '123@gmail.com',
+        })
+        json_token = json.loads(str(response_token.content, encoding='utf8'))
+        token = str(json_token['token'])
+        reset_password = self.client.post(reverse('reset_password'), data = {
+            'token' : token,
+            'new_password':'Hi'
+        })
+        new_login = self.client.post(reverse('login'), data = {
+            'username': 'testusername',
+            'password' : 'Hi',
+        })
+        new_login_json = json.loads(str(new_login.content, encoding='utf8'))
+        self.assertEquals(new_login_json['login status'],'success')
+
+
+    def test_fail(self):
+        response = self.client.get(reverse('get_user'))
+        self.assertContains(response,'invalid')
+
+class UpdateUserProfileTestCase(TestCase):
+
+    def test_fail(self):
+        response = self.client.get(reverse('update_user_profile'))
+        self.assertContains(response,'invalid')
+
+
+    
 
     def test_fail(self):
         response = self.client.get(reverse('update_profile', kwargs={'profile_id':500}))

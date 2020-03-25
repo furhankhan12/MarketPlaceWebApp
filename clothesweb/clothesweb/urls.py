@@ -28,4 +28,7 @@ urlpatterns = [
     path('users/signup/',views.create_account, name='create_account'),
     path('users/login',views.login,name='login'),
     path('users/logout',views.logout,name='logout'),
+    path('users/reset_password_email',views.reset_password_email,name="reset_password_email"),
+    path('users/reset_password/<slug:token>',views.reset_password,name='reset_password'),
+    path('users/update_information',views.update_user_profile,name='update_user_profile'),
 ]
