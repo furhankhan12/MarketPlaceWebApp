@@ -113,7 +113,7 @@ def get_user_with_auth(request):
     if request.method == "POST":
         auth = request.POST.get('auth')
         auth_data = [
-        ('auth',auth),
+            ('auth',auth),
         ]
         data = urllib.parse.urlencode(auth_data).encode("utf-8")
         req = urllib.request.Request('http://models:8000/api/v1/users/get_user_with_auth')
@@ -202,6 +202,7 @@ def reset_password_email(request):
         return JsonResponse(data = resp_json)
     else:
         return JsonResponse(data={'ok':True, 'message': 'Invalid request'})
+
 def get_user(request):
     if request.method == "POST":
         auth = request.POST.get('auth')
@@ -236,9 +237,6 @@ def update_user_profile(request):
         return JsonResponse(data = resp_json)
     else:
         return JsonResponse(data={'ok':True, 'message': 'Invalid request'})
-
-
-
 
 
 # make a POST request.

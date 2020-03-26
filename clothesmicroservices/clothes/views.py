@@ -396,8 +396,10 @@ def update_user_profile(request):
             if not user: 
                 return JsonResponse(data={'ok':False,'message': 'user not found'})  
             else:
-                user_email = User.objects.filter(emailAddress=emailAddress).first()
-                if not user_email:
+                user_email = User.objects.filter(emailAddress=emailAddress).values('emailAddress').first()
+                # user_email = user.emailAddress
+                print(user_email, emailAddress)
+                if not user_email or user_email['emailAddress'] == emailAddress:
                     if firstName:
                         user.firstName = firstName
                     if lastName:
@@ -405,9 +407,11 @@ def update_user_profile(request):
                     if emailAddress:
                         user.emailAddress=emailAddress
                     user.save()
-                    return JsonResponse(data={'ok':True,'message': 'User account succesfully updated'})  
+                    return JsonResponse(data={'ok':True,'message': 'User account succesfully updated.'})  
+                
                 if user_email:
-                    return JsonResponse(data={'ok':False,'message': 'Email address already in use'}) 
+                    if user_email['emailAddress'] != emailAddress:
+                        return JsonResponse(data={'ok':False,'message': 'Email address already in use.'}) 
     else:
         return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
 

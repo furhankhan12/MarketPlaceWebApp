@@ -2,11 +2,18 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<h1>Update Profile Page</h1>
-<form method="POST">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <input type="submit" value="Submit">
-</form>
+<div class="container mx-auto pt-3">
+    <h2 style="text-align: center;">UPDATE USER PROFILE</h2>
+    <hr class="trans-grow">
+</div>
+<div class="content-section col-sm-6 mx-auto pt-3">
+    <form method="POST">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="form-group">
+            <button class="btn btn-primary" type="submit" method='POST'>Submit</button>
+        </div>
+    </form>
+</div>
 {% endblock content %}
 

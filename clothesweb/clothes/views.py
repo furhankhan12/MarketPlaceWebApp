@@ -79,9 +79,10 @@ def item(request, pk):
         return render(request, 'details.html', {'listing':listing_list, 'authenticated':authenticated})
 
 def update_listing(request, listing_id):
-    form = ListingForm
     user = get_user_with_auth(request)
+    # print(user)
     listing = get_listing(request, listing_id)
+    form = ListingForm(listing['listing'][0])
     if user['ok'] and listing['ok']:
         user_id = user['user'][0]['id']
         seller_id = listing['listing'][0]['seller_id']
@@ -332,8 +333,8 @@ def reset_password_email(request):
                 else:
                     messages.error(request, resp['message']) 
     return render(request, 'reset_password.html', {'form': form})
+
 def reset_password(request,token):
-    
     form = PassWordResetForm()
     if request.method == 'POST':
         form = PassWordResetForm(request.POST)
@@ -355,18 +356,20 @@ def reset_password(request,token):
     return render(request, 'reset_password.html', {'form': form})
 
 def update_user_profile(request):
-    form = UpdateUserForm()
+    user = get_user_with_auth(request)
+    # {'ok': True, 'user': [{'emailAddress': 'amd5ef@virginia.edu', 'last_login': None, 'password': 'pbkdf2_sha256$150000$78c740783733d642a2cb1a30f91a6f3b2f580297d6af69d5d020a2925c1597fb$0+PMX/+euRH60edKUhNmtKpOzYD8v5bOPVikkO11GVw=', 'username': 'amd5ef', 'lastName': 'Davis', 'firstName': 'Anna', 'id': 1}]}
+    form = UpdateUserForm(initial={'firstName':user['user'][0]['firstName'], 'lastName':user['user'][0]['lastName'], 'emailAddress':user['user'][0]['emailAddress']})
     if request.method == 'POST':
         auth = request.COOKIES.get('auth') 
         form = UpdateUserForm(request.POST)
         if form.is_valid():
             form_data = form.cleaned_data
             updated_data = [
-            ('lastName',form_data['lastName']),
-            ('firstName',form_data['firstName']),
-            ('emailAddress',form_data['emailAddress']),
-            ('auth',auth),
-        ]
+                ('lastName',form_data['lastName']),
+                ('firstName',form_data['firstName']),
+                ('emailAddress',form_data['emailAddress']),
+                ('auth',auth),
+            ]
             if not form_data['lastName']and not form_data['firstName'] and not form_data['emailAddress'] :
                 messages.error(request,"No changes applied")
                 return redirect("/home")

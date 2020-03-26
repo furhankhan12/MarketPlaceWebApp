@@ -24,7 +24,7 @@
 
                 </ul>
                 <div class="navbar-nav ml-auto">
-                    {% if request.COOKIES.auth %}
+                    {% if authenicated %}
                       <div class="dropdown-divider"></div>
                       <!-- <a class="nav-link" href="#">Profile</a> -->
                       <a class="nav-link" href="/users/logout">Logout</a>
