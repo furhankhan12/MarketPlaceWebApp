@@ -4,7 +4,7 @@
   <!DOCTYPE html>
   
   <style>
-  .button {
+  /* .button {
   display: inline-block;
   padding: 10px 18px;
   margin-bottom: 10px;
@@ -37,7 +37,7 @@
 
 .button:active {
   box-shadow: inset 0 1px 10px hsla(0, 0%, 0%, 0.8);
-}
+} */
 
 .grid {
   border: 1px solid #333;
@@ -86,12 +86,12 @@
         <h1 class="display-3">Welcome!</h1>
         <p class="lead">To our clothing marketplace app</p>
         {% if authenticated %}
-          <a type="button" class="btn btn-primary" href="/listing/new">Create a listing</a>
+          <a type="button" class="btn btn-primary" href='/listing/new'>Create a listing</a>
         {% else %}
-          <a type="button" class="btn btn-primary"  href="/users/signup">Sign Up</a>
+          <a type="button" class="btn btn-primary"  href='/users/signup'>Sign Up</a>
           <a type="button" class="btn btn-secondary"  href = '/users/login'>Login</a>
         {% endif %}
-    </header>
+      </header>
       <!-- Page Features -->
       <!-- <div class="button-group filters-button-group text-center">
           <button class="button is-checked" data-filter="*">show all</button>
@@ -111,30 +111,6 @@
       <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
       <!------ Include the above in your HEAD tag ---------->
       <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
-      <div class="container">
-          <br/>
-          <div class="row justify-content-center">
-            <div class="col-12 col-md-10 col-lg-8">
-              <form class="card card-sm border-0" action="/search/results/" method="GET">
-                <div class="card-body row no-gutters align-items-center">
-                  <div class="col-auto">
-                      <i class="fas fa-search h4 text-body my-auto mr-1"></i>
-                  </div>
-                  <!--end of col-->
-                  <div class="col">
-                      <input class="form-control form-control-lg form-control-borderless" type="search" placeholder="Search for clothing items" name = "Query">
-                  </div>
-                  <!--end of col-->
-                  <div class="col-auto">
-                      <button class="btn btn-lg btn-success ml-1" type="submit">Search</button>
-                  </div>
-                  <!--end of col-->
-                </div>
-              </form>
-            </div>
-            <!--end of col-->
-        </div>
-      </div>
       <!-- Page Features -->
       <div class="button-group filters-button-group text-center mb-2">
           <!-- <button class="btn btn-primary is-checked" data-filter="*">Show All</button>
