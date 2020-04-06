@@ -85,15 +85,11 @@
       <header class="jumbotron my-4">
         <h1 class="display-3">Welcome!</h1>
         <p class="lead">To our clothing marketplace app</p>
-
         {% if authenticated %}
-        <a type="button" class="btn btn-primary" href="/listing/new">Create a listing</a>
-        <h6 class="pt-5">User Info</h6>
-        <p class="lead">{{ user_info }}</p>
-        <a type="button" class="btn btn-secondary" href='/users/update_information'>Edit Information</a>
+          <a type="button" class="btn btn-primary" href="/listing/new">Create a listing</a>
         {% else %}
-        <a type="button" class="btn btn-primary"  href="/users/signup">Sign Up</a>
-        <a type="button" class="btn btn-secondary"  href = '/users/login'>Login</a>
+          <a type="button" class="btn btn-primary"  href="/users/signup">Sign Up</a>
+          <a type="button" class="btn btn-secondary"  href = '/users/login'>Login</a>
         {% endif %}
     </header>
       <!-- Page Features -->
@@ -175,17 +171,15 @@
  
       {% if not listings %}
       <br>
-      <h5 class="text-center">There Are Currently No Listings. Feel Free to Change That! </h5>
+      <h5 class="text-center">There Are Currently No Listings. Feel Free to Change That!</h5>
       {% endif %}
       {% for item in listings %}
-        <div class='col-sm-4 pt-3 element-item {% if item.price >= 20 %}price20{% endif %}{% if 10 > item.price %}price10{% endif %}{% if item.price > 10 and 20 > item.price %}price1020{% endif %}'>
+        <div class='col-sm-4 pt-3 pb-3 element-item {% if item.price >= 20 %}price20{% endif %}{% if 10 > item.price %}price10{% endif %}{% if item.price > 10 and 20 > item.price %}price1020{% endif %}'>
           <div class="card h-100 text-center">
             <img class="card-img-top" src="http://placehold.it/500x325" alt="">
             <div class="card-body">
               <h4 class="card-title">{{ item.name }}</h4>
-              <!-- <p class="card-text">{{item.color}}</p> -->
               <p class="card-text">${{item.price}}</p>
-              <!-- <p class="card-text">{{item.description |slice:":25"}}...</p> -->
             </div>
             <div class="card-footer">
               <a href="{% url 'listing' listing_id=item.id %}" class="btn btn-dark">Details</a>

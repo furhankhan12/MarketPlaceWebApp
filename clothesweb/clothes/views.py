@@ -15,30 +15,6 @@ from django.shortcuts import get_object_or_404
 
 # Create your views here.
 
-def get_all_listings(request):
-    # note, no timeouts, error handling or all the other things needed to do this for real
-    req = urllib.request.Request('http://exp:8000/listings')
-    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
-    resp = json.loads(resp_json)
-    return resp
-
-# def home(request):
-#     listings_json = get_all_listings(request)
-#     listings_list = listings_json['listings']
-  
-#     if listings_json['ok']:
-#         return render(request, 'home.html', {'listings':listings_list})
-#     # else:
-
-
-def get_listing(request, listing_id):
-    # note, no timeouts, error handling or all the other things needed to do this for real
-    url = 'http://exp:8000/listings/' + str(listing_id)
-    req = urllib.request.Request(url)
-    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
-    resp = json.loads(resp_json)
-    return resp
-
 def get_user(request):
     if request.COOKIES.get('auth'):
         auth = request.COOKIES.get('auth') 
@@ -53,38 +29,51 @@ def get_user(request):
             return resp_json
     return {'ok':False}
 
-
 def home(request):
     listings_json = get_all_listings(request)
     listings_list = listings_json['listings']
-    authenticated = False
-    if request.COOKIES.get('auth'):
-        authenticated=True
     user_info = get_user(request)
-    # user_info = get_user_with_auth(request)
     if listings_json['ok'] and user_info['ok']:
-        return render(request, 'home.html', {'listings':listings_list, 'authenticated':authenticated, 'user_info':user_info['user']})
-        # return render(request, 'home.html', {'listings':listings_list, 'authenticated':authenticated, 'user_info':user_info['user'][0]['id']})
-    if listings_json['ok']:
-        return render(request, 'home.html', {'listings':listings_list, 'authenticated':authenticated})
+        return render(request, 'home.html', {'listings':listings_list, 'user_info':user_info['user']})
 
-def item(request, pk):
-    # time = datetime.now()
-    listing_json = get_listing(request, pk)
-    listing_list = listing_json['listing']
-    authenticated = False
-    if request.COOKIES.get('auth'):
-        authenticated=True
+    if listings_json['ok'] and not user_info['ok']:
+        return render(request, 'home.html', {'listings':listings_list})
+
+def get_all_listings(request):
+    # note, no timeouts, error handling or all the other things needed to do this for real
+    req = urllib.request.Request('http://exp:8000/listings')
+    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+    resp = json.loads(resp_json)
+    return resp
+
+def get_listing(request, listing_id):
+    # note, no timeouts, error handling or all the other things needed to do this for real
+    url = 'http://exp:8000/listings/' + str(listing_id)
+    req = urllib.request.Request(url)
+    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+    resp = json.loads(resp_json)
+    return resp
+
+# def item(request, pk):
+#     listing_json = get_listing(request, pk)
+#     listing_list = listing_json['listing']
+#     if listing_json['ok']:
+#         return render(request, 'details.html', {'listing':listing_list})
+
+def listing(request, listing_id):
+    listing_json = get_listing(request, listing_id)
     if listing_json['ok']:
-        return render(request, 'details.html', {'listing':listing_list, 'authenticated':authenticated})
+        listing_list = listing_json['listing']
+        return render(request, 'details.html', {'listing':listing_list})
+    else:
+        return render(request, '404_listing.html')
 
 def update_listing(request, listing_id):
-    user = get_user_with_auth(request)
-    # print(user)
+    user = get_user(request)
     listing = get_listing(request, listing_id)
     form = ListingForm(listing['listing'][0])
     if user['ok'] and listing['ok']:
-        user_id = user['user'][0]['id']
+        user_id = user['user']['id']
         seller_id = listing['listing'][0]['seller_id']
     else:
         user_id = None
@@ -116,7 +105,6 @@ def update_listing(request, listing_id):
     return render(request, 'edit_listing.html', {'form': form, 'user_id':user_id, 'seller_id':seller_id})
 
 def delete_listing(request, listing_id):
-    # note, no timeouts, error handling or all the other things needed to do this for real
     listing_data = [
         ('listing_id',listing_id),
     ]
@@ -125,45 +113,12 @@ def delete_listing(request, listing_id):
     with urllib.request.urlopen(req,data=data) as f:
         resp_json = json.loads(f.read().decode('utf-8'))  
     if resp_json['ok']:
-        # response = HttpResponseRedirect('/home')
-        # return response
         messages.success(request, 'Listing was successfully deleted.')
         return redirect('home')
-
     else:
         messages.warning(request,resp_json['message'])
     return render(request,'home.html')   
 
-def listing(request, listing_id):
-    listing_json = get_listing(request, listing_id)
-    user = get_user_with_auth(request)
-
-    if listing_json['ok']:
-        if user['ok']:
-            user_id = user['user'][0]['id']
-        else:
-            user_id = None
-        listing_list = listing_json['listing']
-        return render(request, 'details.html', {'listing':listing_list, 'user_id':user_id})
-    else:
-        return render(request, '404_listing.html')
-
-def get_user_with_auth(request):
-    auth = request.COOKIES.get('auth') 
-    if auth:
-        auth_data = [
-            ('auth',auth),
-        ]
-        data = urllib.parse.urlencode(auth_data).encode("utf-8")
-        req = urllib.request.Request('http://exp:8000/users/get_user_with_auth')
-        with urllib.request.urlopen(req,data=data) as f:
-            resp_json = json.loads(f.read().decode('utf-8'))  
-        if resp_json['ok']:
-            return resp_json
-        else:
-            return resp_json
-    else:
-        return {'ok':False}
 
 def new_listing(request):
     form = ListingForm()
@@ -171,9 +126,9 @@ def new_listing(request):
         form = ListingForm(request.POST)
         if form.is_valid():
             form_data = form.cleaned_data
-            seller = get_user_with_auth(request)
+            seller = get_user(request)
             if seller['ok']:
-                seller_id = seller['user'][0]['id']
+                seller_id = seller['user']['id']
                 listing_data = [
                     ('name',form_data['name']),
                     ('color',form_data['color']),
@@ -193,8 +148,6 @@ def new_listing(request):
             return render(request,'home.html')             
     return render(request, 'new_listing.html', {'form': form})
 
-
-
 def search_results(request):
     current_query = str(request.GET['Query'])
     if current_query=='':
@@ -207,18 +160,10 @@ def search_results(request):
     req = urllib.request.Request(url)
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
-    authenticated = False
-    if request.COOKIES.get('auth'):
-        authenticated=True
     if resp!={}:
         search_list = resp['listings']
         if resp['ok']:
-
-            return render(request, 'search.html', {'listings':search_list, 'authenticated':authenticated})
-
-            # print(search_list)
-            return render(request, 'home.html', {'listings':search_list})
-
+            return render(request, 'search.html', {'listings':search_list })
         else:
             return redirect('home')
     return render('home.html',{'listings':{}})
@@ -240,10 +185,6 @@ def create_account(request):
             ('lastName',form_data['lastName']),
             ('emailAddress',form_data['emailAddress']),
         ]
-            # req = urllib.request.Request('http://exp:8000/users/signup',data= urllib.parse.urlencode(account_data).encode("utf-8"))
-            # resp_json = urllib.request.urlopen(req).read().decode('utf-8')
-            # resp = json.loads(resp_json)
-            # print(resp)
             data = urllib.parse.urlencode(account_data).encode("utf-8")
             req = urllib.request.Request('http://exp:8000/users/signup')
             with urllib.request.urlopen(req,data=data) as f:
@@ -289,7 +230,6 @@ def login(request):
                 messages.error(request, resp['message'])
         
     return render(request, 'login.html', {'form': form, 'authenticated':authenticated})
-
 
 def logout(request):
     auth = request.COOKIES.get('auth') 
@@ -355,10 +295,16 @@ def reset_password(request,token):
                     messages.error(request, resp['message']) 
     return render(request, 'reset_password.html', {'form': form})
 
+def user_profile(request):
+    user = get_user(request)
+    if user['ok']:
+        return render(request, 'user_profile.html', {'user_info':user['user'], 'user_id':user['user']['id']}) 
+    else:
+        return render(request, 'user_profile.html', {'user_info':None, 'user_id':None}) 
+
 def update_user_profile(request):
-    user = get_user_with_auth(request)
-    # {'ok': True, 'user': [{'emailAddress': 'amd5ef@virginia.edu', 'last_login': None, 'password': 'pbkdf2_sha256$150000$78c740783733d642a2cb1a30f91a6f3b2f580297d6af69d5d020a2925c1597fb$0+PMX/+euRH60edKUhNmtKpOzYD8v5bOPVikkO11GVw=', 'username': 'amd5ef', 'lastName': 'Davis', 'firstName': 'Anna', 'id': 1}]}
-    form = UpdateUserForm(initial={'firstName':user['user'][0]['firstName'], 'lastName':user['user'][0]['lastName'], 'emailAddress':user['user'][0]['emailAddress']})
+    user = get_user(request)
+    form = UpdateUserForm(initial={'firstName':user['user']['firstName'], 'lastName':user['user']['lastName'], 'emailAddress':user['user']['emailAddress']})
     if request.method == 'POST':
         auth = request.COOKIES.get('auth') 
         form = UpdateUserForm(request.POST)
@@ -379,15 +325,10 @@ def update_user_profile(request):
                 resp = json.loads(f.read().decode('utf-8'))
                 if resp['ok']==True:
                     messages.success(request,"Profile has been updated")
-                    return redirect("/home")
+                    return redirect("/users/profile")
                 else:
                     messages.error(request, resp['message']) 
-    return render(request, 'update_user.html', {'form': form}) 
-
-
-
-
-
+    return render(request, 'update_user.html', {'form': form, 'user_id':user['user']['id']}) 
 
     
 

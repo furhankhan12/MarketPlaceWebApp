@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-{% if authenicated %}
+{% if authenticated %}
   <div class="content-section col-sm-10 mx-auto pt-3 pb-3">
     <h2>Looks like you are already logged in!</h2>
     <small class="text-muted">
@@ -27,9 +27,9 @@
         <button class="btn btn-outline-dark" type="submit">Login</button>
       </div>
     </form>
-  </div>
   <br></br>
   <a class="button" href="/users/reset_password_email"> Forgot Password?</a>
+</div>
 {% endif %}
 {% endblock content %}
 

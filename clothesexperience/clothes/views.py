@@ -15,7 +15,6 @@ def get_all_listings(request):
     req = urllib.request.Request('http://models:8000/api/v1/listings')
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
-    print(resp['ok'])
     return JsonResponse(resp)
 
 def get_listing(request, listing_id):
@@ -109,17 +108,31 @@ def get_searchResults(request, query):
     return JsonResponse(resp)
 
 ## USERS
-def get_user_with_auth(request):
+# def get_user_with_auth(request):
+#     if request.method == "POST":
+#         auth = request.POST.get('auth')
+#         auth_data = [
+#             ('auth',auth),
+#         ]
+#         data = urllib.parse.urlencode(auth_data).encode("utf-8")
+#         req = urllib.request.Request('http://models:8000/api/v1/users/get_user_with_auth')
+#         with urllib.request.urlopen(req,data=data) as f:
+#             resp_json = json.loads(f.read().decode('utf-8'))  
+#         return JsonResponse(data = resp_json)
+
+def get_user(request):
     if request.method == "POST":
         auth = request.POST.get('auth')
         auth_data = [
             ('auth',auth),
         ]
         data = urllib.parse.urlencode(auth_data).encode("utf-8")
-        req = urllib.request.Request('http://models:8000/api/v1/users/get_user_with_auth')
+        req = urllib.request.Request('http://models:8000/api/v1/users/get_user')
         with urllib.request.urlopen(req,data=data) as f:
             resp_json = json.loads(f.read().decode('utf-8'))  
         return JsonResponse(data = resp_json)
+    else:
+        return JsonResponse(data={'ok':False, 'message': 'Invalid request'}) 
 
 def create_account(request):
     if request.method == "POST":
@@ -202,21 +215,6 @@ def reset_password_email(request):
         return JsonResponse(data = resp_json)
     else:
         return JsonResponse(data={'ok':True, 'message': 'Invalid request'})
-
-def get_user(request):
-    if request.method == "POST":
-        auth = request.POST.get('auth')
-        auth_data = [
-        ('auth',auth),
-        ]
-        data = urllib.parse.urlencode(auth_data).encode("utf-8")
-        req = urllib.request.Request('http://models:8000/api/v1/users/get_user')
-        with urllib.request.urlopen(req,data=data) as f:
-            resp_json = json.loads(f.read().decode('utf-8'))  
-        return JsonResponse(data = resp_json)
-    else:
-        return JsonResponse(data={'ok':False, 'message': 'Invalid request'}) 
-    
 
 def update_user_profile(request):
     if request.method == "POST":

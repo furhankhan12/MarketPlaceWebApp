@@ -8,24 +8,16 @@ from django.contrib import messages
 from django.conf import settings
 from django.contrib import messages 
 from django.shortcuts import get_object_or_404
+from .views import get_user
 
-def get_user_with_auth(request):
-    auth = request.COOKIES.get('auth') 
-    if auth:
-        auth_data = [
-            ('auth',auth),
-        ]
-        data = urllib.parse.urlencode(auth_data).encode("utf-8")
-        req = urllib.request.Request('http://exp:8000/users/get_user_with_auth')
-        with urllib.request.urlopen(req,data=data) as f:
-            resp_json = json.loads(f.read().decode('utf-8'))  
-        if resp_json['ok']:
-            return resp_json
-        else:
-            return resp_json
-    else:
-        return {'ok':False}
+# this makes it so there will always be 
+# authenticated: is a user logged in?
+# user: user id for the user that is logged in
+# accessbile on every template
 
 def is_authenticated(request):
-    resp = get_user_with_auth(request)
-    return { 'authenicated':resp['ok'] }
+    resp = get_user(request)
+    if resp['ok']:
+        return { 'authenticated':resp['ok'], 'user':resp['user']['id'] }
+    else:
+        return { 'authenticated':resp['ok'] }
