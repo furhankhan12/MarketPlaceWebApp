@@ -2,12 +2,11 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-{% if request.COOKIES.auth and user_id == seller_id %}
+{% if authenticated and user == seller_id %}
 <div class="container">
   <h2 style="text-align: center;">EDIT LISTING</h2>
-  <hr class="trans-grow">
+  <hr>
   <div class="col-sm-10 mx-auto pt-3">
-      <h6>Editing listing information</h6>
       <form method="POST" >
           {% csrf_token %}
           <div class="form-group">
@@ -21,6 +20,10 @@
   {% else %}
     <div class="col-sm-10 mx-auto pt-3" style="text-align:center">
       <p>Oops, something went wrong! You don't have permission to edit this listing.</p>
+      <small class="text-muted">
+        <a style="text-align:center" href="/users/login">Login to edit your listing</a>
+      </small>
+      <br>
       <small class="text-muted">
         <a style="text-align:center" href="/home">Go to the home page to browse</a>
       </small>

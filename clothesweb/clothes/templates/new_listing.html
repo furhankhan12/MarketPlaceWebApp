@@ -2,19 +2,19 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-{% if request.COOKIES.auth %}
+{% if authenticated %}
 <div class="container mx-auto pt-3">
   <h2 style="text-align: center;">NEW LISTING</h2>
-  <hr class="trans-grow">
+  <hr>
 </div>
-<div class="content-section col-sm-6 mx-auto pt-3">
+<div class="content-section col-sm-10 mx-auto pt-3">
   <form method="POST">
     {% csrf_token %} 
     <fieldset class="form-group">
       {{ form|crispy }}
     </fieldset>
     <div class="form-group mx-auto">
-      <button class="btn btn-outline-dark" type="submit">Publish</button>
+      <button class="btn btn-primary" type="submit">Publish Listing</button>
     </div>
   </form>
 </div>

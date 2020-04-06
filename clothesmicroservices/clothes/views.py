@@ -22,7 +22,7 @@ def get_all_listings(request):
     else:
         return JsonResponse(data={'ok':False, 'message': 'listings not found'})    
 
- #Get a specific listing  
+# Get a specific listing  
 def get_listing(request, listing_id):
     listing = Listing.objects.filter(pk=listing_id).values()
     listing_list = list(listing)
@@ -31,16 +31,6 @@ def get_listing(request, listing_id):
         return JsonResponse(data=listing_dict) 
     else:
         return JsonResponse(data={'ok':False, 'message': 'listing not found', 'id searched': listing_id})    
-    
-    # should it be
-    # if get
-        # do get stuff
-    # elif put
-        # do put stuff
-    # else
-        # do get stuff
-    # if that is the correct way to do it, then what is the purpose of the
-    # /delete and /update urls mentioned in the project write up?
     
 # new listing
 def new_listing(request):
@@ -183,9 +173,6 @@ def delete_order(request, order_id):
         return JsonResponse(data={'ok':True, 'delete status': 'success'})
 
 
-
-
-
 # def get_user(request):
 #     user = User.objects.filter(pk=user_id).values()
 #     user_list = list(user)
@@ -199,31 +186,7 @@ def delete_order(request, order_id):
 #     if users_dict:
 #         return JsonResponse(data=users_dict) 
 #     else:
-#         return JsonResponse(data={'ok':False, 'message': 'users not found'})  
-
-def get_user_with_id(request, user_id):
-    user = User.objects.filter(pk=user_id).values()
-    user_list = list(user)
-    user_dict = {'ok':True, 'user': user_list}
-    if user_list:
-        return JsonResponse(data=user_dict) 
-    else:
-        return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})    
-
-def get_user_with_auth(request):
-    if request.method == "POST":
-        auth_token = request.POST.get('auth')
-        auth = Authenticator.objects.filter(authenticator=auth_token).first()
-        user_id = auth.user_id
-        user = User.objects.filter(pk=user_id).values()
-        user_list = list(user)
-        user_dict = {'ok':True, 'user': user_list}
-        if user_list:
-            return JsonResponse(data=user_dict) 
-        else:
-            return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})    
-    else:
-        return JsonResponse(data={'ok': False, 'message': 'user not authenticated'})    
+#         return JsonResponse(data={'ok':False, 'message': 'users not found'})     
 
 # def get_user_username(request, user_name):
 #     user = User.objects.filter(username=user_name).first()
@@ -290,7 +253,6 @@ def create_account(request):
 #         # output after create
 #         return JsonResponse(data={'ok':True, 'message': 'New account created'})
          
-    
 
 def login(request):
     if request.method == "POST":
@@ -329,10 +291,10 @@ def logout(request):
     else:
         return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
   
-def user_is_authenticated(username):
-    user = User.objects.filter(username=username)
-    auth = Authenticator.objects.filter(user_id=user.id)
-    return auth
+# def user_is_authenticated(username):
+#     user = User.objects.filter(username=username)
+#     auth = Authenticator.objects.filter(user_id=user.id)
+#     return auth
 
 def reset_user_password(request):
     if request.method == "POST":
@@ -396,8 +358,10 @@ def update_user_profile(request):
             if not user: 
                 return JsonResponse(data={'ok':False,'message': 'user not found'})  
             else:
-                user_email = User.objects.filter(emailAddress=emailAddress).first()
-                if not user_email:
+                user_email = User.objects.filter(emailAddress=emailAddress).values('emailAddress').first()
+                # user_email = user.emailAddress
+                print(user_email, emailAddress)
+                if not user_email or user_email['emailAddress'] == emailAddress:
                     if firstName:
                         user.firstName = firstName
                     if lastName:
@@ -405,9 +369,11 @@ def update_user_profile(request):
                     if emailAddress:
                         user.emailAddress=emailAddress
                     user.save()
-                    return JsonResponse(data={'ok':True,'message': 'User account succesfully updated'})  
+                    return JsonResponse(data={'ok':True,'message': 'User account succesfully updated.'})  
+                
                 if user_email:
-                    return JsonResponse(data={'ok':False,'message': 'Email address already in use'}) 
+                    if user_email['emailAddress'] != emailAddress:
+                        return JsonResponse(data={'ok':False,'message': 'Email address already in use.'}) 
     else:
         return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
 
@@ -426,10 +392,34 @@ def get_user(request):
             if not user: 
                 return JsonResponse(data={'ok':False,'message': 'user not found'})  
             else:
-                user_dict = {'ok':True, 'user': {'First Name':user.firstName, 'Last Name':user.lastName, 'Email Address':user.emailAddress}}
+                user_dict = {'ok':True, 'user': {'firstName':user.firstName, 'lastName':user.lastName, 'emailAddress':user.emailAddress, 'id':user.id, 'username':user.username}}
                 return JsonResponse(data=user_dict)     
     else:
         return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
+
+# def get_user_with_auth(request):
+#     if request.method == "POST":
+#         auth_token = request.POST.get('auth')
+#         auth = Authenticator.objects.filter(authenticator=auth_token).first()
+#         user_id = auth.user_id
+#         user = User.objects.filter(pk=user_id).values()
+#         user_list = list(user)
+#         user_dict = {'ok':True, 'user': user_list}
+#         if user_list:
+#             return JsonResponse(data=user_dict) 
+#         else:
+#             return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})    
+#     else:
+#         return JsonResponse(data={'ok': False, 'message': 'user not authenticated'}) 
+
+def get_user_with_id(request, user_id):
+    user = User.objects.filter(pk=user_id).values()
+    user_list = list(user)
+    user_dict = {'ok':True, 'user': user_list}
+    if user_list:
+        return JsonResponse(data=user_dict) 
+    else:
+        return JsonResponse(data={'ok': False, 'message': 'user not found', 'id searched': user_id})    
 
 # update and display listing
 # def update_user(request, user_id):

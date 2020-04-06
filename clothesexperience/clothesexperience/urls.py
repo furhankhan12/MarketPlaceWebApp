@@ -32,5 +32,5 @@ urlpatterns = [
     path('users/reset_password_email',views.reset_password_email,name='reset_password_email'),
     path('users/update_information',views.update_user_profile, name='update_user_profile'),
     path('users/get_user',views.get_user,name='get_user'),
-    path('users/get_user_with_auth',views.get_user_with_auth,name='get_user_with_auth'),
+    # path('users/get_user_with_auth',views.get_user_with_auth,name='get_user_with_auth'),
 ]
