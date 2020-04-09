@@ -378,24 +378,20 @@ def update_user_profile(request):
         return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
 
 def get_user(request):
-    if request.method == "POST":
-        auth_token = request.POST.get('auth')
-        auth = Authenticator.objects.filter(authenticator=auth_token).first()
-        if not auth:
-            return JsonResponse(data={'ok':False, 'message': 'not logged in',})
-        else: 
-            try: 
-                user = User.objects.get(pk=auth.user_id)
-            except User.DoesNotExist: 
-                user = None
-    
-            if not user: 
-                return JsonResponse(data={'ok':False,'message': 'user not found'})  
-            else:
-                user_dict = {'ok':True, 'user': {'firstName':user.firstName, 'lastName':user.lastName, 'emailAddress':user.emailAddress, 'id':user.id, 'username':user.username}}
-                return JsonResponse(data=user_dict)     
-    else:
-        return JsonResponse(data={'ok':False, 'message': 'invalid request'})   
+    auth_token = request.POST.get('auth')
+    auth = Authenticator.objects.filter(authenticator=auth_token).first()
+    if not auth:
+        return JsonResponse(data={'ok':False, 'message': 'not logged in',})
+    else: 
+        try: 
+            user = User.objects.get(pk=auth.user_id)
+        except User.DoesNotExist: 
+            user = None
+        if not user: 
+            return JsonResponse(data={'ok':False,'message': 'user not found'})  
+        else:
+            user_dict = {'ok':True, 'user': {'firstName':user.firstName, 'lastName':user.lastName, 'emailAddress':user.emailAddress, 'id':user.id, 'username':user.username}}
+            return JsonResponse(data=user_dict)     
 
 # def get_user_with_auth(request):
 #     if request.method == "POST":

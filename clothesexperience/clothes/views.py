@@ -7,6 +7,7 @@ from django.http import JsonResponse, HttpResponse
 import json, os, hmac
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
+from kafka import KafkaProducer
 
 # Create your views here.
 
@@ -22,7 +23,11 @@ def get_listing(request, listing_id):
     req = urllib.request.Request('http://models:8000/api/v1/listings/' + str(listing_id))
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
-    # print(resp['ok'])
+    user_id = request.POST.get('user_id')
+    if resp['ok']:
+        producer = KafkaProducer(bootstrap_servers='kafka:9092')
+        listing = {'user_id': user_id, 'item_id':listing_id}
+        producer.send('track-views-topic', json.dumps(listing).encode('utf-8'))
     return JsonResponse(resp)
 
 def update_listing(request, listing_id):
@@ -68,7 +73,6 @@ def new_listing(request):
         color = request.POST.get('color')
         description = request.POST.get('description')
         seller_id = request.POST.get('seller_id')
-
         listing_data = [
             ('name',name),
             ('price',price),
@@ -81,6 +85,11 @@ def new_listing(request):
         with urllib.request.urlopen(req,data=data) as f:
             resp_models = json.loads(f.read().decode('utf-8'))
         if resp_models['ok']:
+            # SENDING TO KAFKA
+            producer = KafkaProducer(bootstrap_servers='kafka:9092')
+            listing = resp_models['listing'][0]
+            print("exp new listing", listing)
+            producer.send('new-listings-topic', json.dumps(listing).encode('utf-8'))
             return JsonResponse(data=resp_models)
         else:
             return JsonResponse(data=resp_models)
@@ -108,31 +117,20 @@ def get_searchResults(request, query):
     return JsonResponse(resp)
 
 ## USERS
-# def get_user_with_auth(request):
-#     if request.method == "POST":
-#         auth = request.POST.get('auth')
-#         auth_data = [
-#             ('auth',auth),
-#         ]
-#         data = urllib.parse.urlencode(auth_data).encode("utf-8")
-#         req = urllib.request.Request('http://models:8000/api/v1/users/get_user_with_auth')
-#         with urllib.request.urlopen(req,data=data) as f:
-#             resp_json = json.loads(f.read().decode('utf-8'))  
-#         return JsonResponse(data = resp_json)
-
 def get_user(request):
     if request.method == "POST":
         auth = request.POST.get('auth')
         auth_data = [
-            ('auth',auth),
+            ('auth',auth)
         ]
         data = urllib.parse.urlencode(auth_data).encode("utf-8")
         req = urllib.request.Request('http://models:8000/api/v1/users/get_user')
         with urllib.request.urlopen(req,data=data) as f:
             resp_json = json.loads(f.read().decode('utf-8'))  
-        return JsonResponse(data = resp_json)
+        if resp_json['ok']:
+            return JsonResponse(data=resp_json)
     else:
-        return JsonResponse(data={'ok':False, 'message': 'Invalid request'}) 
+        return JsonResponse(data={'ok':False, 'message': 'invalid request'}) 
 
 def create_account(request):
     if request.method == "POST":

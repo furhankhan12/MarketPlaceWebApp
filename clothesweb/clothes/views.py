@@ -19,7 +19,7 @@ def get_user(request):
     if request.COOKIES.get('auth'):
         auth = request.COOKIES.get('auth') 
         auth_data = [
-        ('auth',auth),
+            ('auth',auth),
         ]
         data = urllib.parse.urlencode(auth_data).encode("utf-8")
         req = urllib.request.Request('http://exp:8000/users/get_user')
@@ -48,11 +48,21 @@ def get_all_listings(request):
 
 def get_listing(request, listing_id):
     # note, no timeouts, error handling or all the other things needed to do this for real
-    url = 'http://exp:8000/listings/' + str(listing_id)
-    req = urllib.request.Request(url)
-    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
-    resp = json.loads(resp_json)
-    return resp
+    user = get_user(request)
+    user_data = [
+        ('user_id', user['user']['id']),
+    ]
+    data = urllib.parse.urlencode(user_data).encode("utf-8")
+    req = 'http://exp:8000/listings/' + str(listing_id)
+    with urllib.request.urlopen(req,data=data) as f:
+        resp_json = json.loads(f.read().decode('utf-8'))  
+    return resp_json
+
+    
+    # req = urllib.request.Request(url)
+    # resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+    # resp = json.loads(resp_json)
+    # return resp
 
 # def item(request, pk):
 #     listing_json = get_listing(request, pk)
@@ -140,7 +150,7 @@ def new_listing(request):
                 req = urllib.request.Request('http://exp:8000/listings/new')
                 with urllib.request.urlopen(req,data=data) as f:
                     resp = json.loads(f.read().decode('utf-8'))
-                    if resp['ok']==True:
+                    if resp['ok']:
                         return redirect('listing', listing_id=resp['listing'][0]['id'])
                     else:
                         messages.warning(request, resp['message'])
