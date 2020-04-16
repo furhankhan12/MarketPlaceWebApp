@@ -18,7 +18,6 @@ for x in range(0, retries):
         producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
         es = Elasticsearch(['es'])        
         strerror = None
-    
     except:
         strerror = "error"
         pass
@@ -45,7 +44,7 @@ def get_listing(request, listing_id):
     resp = json.loads(resp_json)
     user_id = request.POST.get('user_id')
     if resp['ok']:
-        producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
+        # producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
         listing = {'user_id': user_id, 'item_id':listing_id}
         producer.send('track-views-topic', json.dumps(listing).encode('utf-8'))
     return JsonResponse(resp)
@@ -105,33 +104,32 @@ def new_listing(request):
         with urllib.request.urlopen(req,data=data) as f:
             resp_models = json.loads(f.read().decode('utf-8'))
         if resp_models['ok']:
-
             listing = resp_models['listing'][0]
             print("exp new listing", listing)
             if producer:
                 producer.send('new-listings-topic', json.dumps(listing).encode('utf-8'))
-            # producer.close()
             return JsonResponse(data=resp_models)
         else:
             return JsonResponse(data=resp_models)
 
 #Filter results based on what is entered in the search bar 
 def get_searchResults(request, query):
-    connected = False
-    es = Elasticsearch(['es'])
-    while not connected:
-        try:
-            es.info()
-            connected = True
-        except ConnectionError:
-            print("Elasticsearch not available yet, trying again in 2s...")
-            time.sleep(2)
+    if es:
+    # connected = False
+    # es = Elasticsearch(['es'])
+    # while not connected:
+    #     try:
+    #         es.info()
+    #         connected = True
+    #     except ConnectionError:
+    #         print("Elasticsearch not available yet, trying again in 2s...")
+    #         time.sleep(2)
 
-    search = es.search(index='listing_index', body={'query': {'query_string': {'query': query}}})
-    print(search)
+        search = es.search(index='listing_index', body={'query': {'query_string': {'query': query}}})
+        print(search)
     # list of results
-    res = search['hits']['hits']
-    print(res)
+        res = search['hits']['hits']
+        print(res)
 
     return JsonResponse(data={'ok':False, 'listings':res})
     # req = urllib.request.Request('http://models:8000/api/v1/listings')

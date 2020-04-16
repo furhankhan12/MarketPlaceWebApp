@@ -69,7 +69,8 @@ services:
         - batch_network
     volumes:
       - ./batch:/app
-    command: python new_listings.py
+    command: python track_item_views.py
+    # command: python new_listings.py
 
 networks:
   batch_network:

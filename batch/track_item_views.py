@@ -5,9 +5,7 @@ from kafka import KafkaConsumer
 
 
 sleep_time = 2
-# print(sleep_time)
 retries = 4
-# strerror = None
 
 for x in range(0, retries):  
     try:
@@ -24,18 +22,13 @@ for x in range(0, retries):
             f.close()
         strerror = None
 
-    # except Exception as strerror:
     except:
         strerror = "error"
-        # strerror = Exception
-        # print(strerror)
-        # strerror = strerror
         pass
 
     finally:
         if strerror:
             print("sleeping for", sleep_time)
-            print("error", strerror)
             sleep(sleep_time)  # wait before trying to fetch the data again
             sleep_time *= 2  # Implement your backoff algorithm here i.e. exponential backoff
         else:
