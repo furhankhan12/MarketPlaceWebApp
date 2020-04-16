@@ -26,6 +26,7 @@ for x in range(0, retries):
 
     # except Exception as strerror:
     except:
+        strerror = "error"
         # strerror = Exception
         # print(strerror)
         # strerror = strerror

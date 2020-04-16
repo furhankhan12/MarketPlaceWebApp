@@ -170,13 +170,14 @@ def search_results(request):
     req = urllib.request.Request(url)
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
-    if resp!={}:
+    if resp['ok']:
+    # if resp!={}:
         search_list = resp['listings']
-        if resp['ok']:
-            return render(request, 'search.html', {'listings':search_list })
-        else:
-            return redirect('home')
-    return render('home.html',{'listings':{}})
+        # if resp['ok']:
+        return render(request, 'search.html', {'listings':search_list })
+    else:
+        return redirect('home')
+        # return render('home.html', {'listings':{ }})
 
 
 def create_account(request):

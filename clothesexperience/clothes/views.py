@@ -8,8 +8,28 @@ import json, os, hmac
 from django.conf import settings
 from django.contrib.auth.hashers import make_password, check_password
 from kafka import KafkaProducer
+from elasticsearch import Elasticsearch 
+import time
 
-# Create your views here.
+sleep_time = 2
+retries = 4
+for x in range(0, retries):  
+    try:
+        producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
+        es = Elasticsearch(['es'])        
+        strerror = None
+    
+    except:
+        strerror = "error"
+        pass
+
+    finally:
+        if strerror:
+            print("sleeping for", sleep_time)
+            time.sleep(sleep_time)
+            sleep_time*=2
+        else:
+            break
 
 def get_all_listings(request):
     # note, no timeouts, error handling or all the other things needed to do this for real
@@ -25,7 +45,7 @@ def get_listing(request, listing_id):
     resp = json.loads(resp_json)
     user_id = request.POST.get('user_id')
     if resp['ok']:
-        producer = KafkaProducer(bootstrap_servers='kafka:9092')
+        producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
         listing = {'user_id': user_id, 'item_id':listing_id}
         producer.send('track-views-topic', json.dumps(listing).encode('utf-8'))
     return JsonResponse(resp)
@@ -85,36 +105,53 @@ def new_listing(request):
         with urllib.request.urlopen(req,data=data) as f:
             resp_models = json.loads(f.read().decode('utf-8'))
         if resp_models['ok']:
-            # SENDING TO KAFKA
-            producer = KafkaProducer(bootstrap_servers='kafka:9092')
+
             listing = resp_models['listing'][0]
             print("exp new listing", listing)
-            producer.send('new-listings-topic', json.dumps(listing).encode('utf-8'))
+            if producer:
+                producer.send('new-listings-topic', json.dumps(listing).encode('utf-8'))
+            # producer.close()
             return JsonResponse(data=resp_models)
         else:
             return JsonResponse(data=resp_models)
 
-
 #Filter results based on what is entered in the search bar 
 def get_searchResults(request, query):
-    req = urllib.request.Request('http://models:8000/api/v1/listings')
-    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
-    resp = json.loads(resp_json)
-    listings = resp['listings']
-    return_resp = []
-    for listing in listings:
-        description = str(str(listing['description']).lower().split())
-        color = str(str(listing['color']).lower().split())
-        name = str(str(listing['name']).lower().split())
-        to_search = " ".join([description, color, name])
-        query_split = query.split()
-        print(query_split)
-        for search_term in query_split:
-            search_term = str(search_term).lower()
-            if search_term in to_search:
-                return_resp.append(listing)
-    resp['listings'] = return_resp
-    return JsonResponse(resp)
+    connected = False
+    es = Elasticsearch(['es'])
+    while not connected:
+        try:
+            es.info()
+            connected = True
+        except ConnectionError:
+            print("Elasticsearch not available yet, trying again in 2s...")
+            time.sleep(2)
+
+    search = es.search(index='listing_index', body={'query': {'query_string': {'query': query}}})
+    print(search)
+    # list of results
+    res = search['hits']['hits']
+    print(res)
+
+    return JsonResponse(data={'ok':False, 'listings':res})
+    # req = urllib.request.Request('http://models:8000/api/v1/listings')
+    # resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+    # resp = json.loads(resp_json)
+    # listings = resp['listings']
+    # return_resp = []
+    # for listing in listings:
+    #     description = str(str(listing['description']).lower().split())
+    #     color = str(str(listing['color']).lower().split())
+    #     name = str(str(listing['name']).lower().split())
+    #     to_search = " ".join([description, color, name])
+    #     query_split = query.split()
+    #     print(query_split)
+    #     for search_term in query_split:
+    #         search_term = str(search_term).lower()
+    #         if search_term in to_search:
+    #             return_resp.append(listing)
+    # resp['listings'] = return_resp
+    # return JsonResponse(data={'ok':False})
 
 ## USERS
 def get_user(request):
