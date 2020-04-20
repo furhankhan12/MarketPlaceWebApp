@@ -49,9 +49,14 @@ def get_all_listings(request):
 def get_listing(request, listing_id):
     # note, no timeouts, error handling or all the other things needed to do this for real
     user = get_user(request)
-    user_data = [
-        ('user_id', user['user']['id']),
-    ]
+    if user['ok']:
+        user_data = [
+            ('user_id', user['user']['id']),
+        ]
+    else:
+        user_data = [
+            ('user_id', None)
+        ]
     data = urllib.parse.urlencode(user_data).encode("utf-8")
     req = 'http://exp:8000/listings/' + str(listing_id)
     with urllib.request.urlopen(req,data=data) as f:

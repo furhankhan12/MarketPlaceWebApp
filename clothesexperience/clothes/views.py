@@ -22,7 +22,6 @@ for x in range(0, retries):
         strerror = "error"
         pass
 
-    # finally:
     if strerror:
         print("sleeping for", sleep_time)
         time.sleep(sleep_time)
@@ -43,11 +42,12 @@ def get_listing(request, listing_id):
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
     user_id = request.POST.get('user_id')
-    if resp['ok']:
+    if resp['ok'] and user_id and producer:
         # producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
-        listing = {'user_id': user_id, 'item_id':listing_id}
+        listing = {'user_id': user_id, 'item_id':str(listing_id)}
         producer.send('track-views-topic', json.dumps(listing).encode('utf-8'))
-    return JsonResponse(resp)
+    if resp['ok']:
+        return JsonResponse(resp)
 
 def update_listing(request, listing_id):
 # note, no timeouts, error handling or all the other things needed to do this for real

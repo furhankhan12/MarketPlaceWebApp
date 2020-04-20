@@ -1,23 +1,19 @@
 # pulls item viewing messages from Kafka and appends them to a logs
-import json
-from time import sleep
+import json, time
 from kafka import KafkaConsumer
 
-
 sleep_time = 2
-retries = 4
-
+retries = 5
 for x in range(0, retries):  
     try:
         consumer = KafkaConsumer('track-views-topic', group_id='listing-logger', bootstrap_servers=['kafka:9092'])
-        print("consumer", consumer)
         while (True):
             f = open("view_log.txt", "a")
             for message in consumer:
                 new_click = json.loads((message.value).decode('utf-8'))
-                print("batch new listing", new_click)
-                f.write(new_click)
-
+                to_write = str(new_click['user_id']) + " " + str(new_click['item_id'])
+                print(to_write)
+                f.write(str(to_write)+'\n')
             f.close()
         strerror = None
 
@@ -25,11 +21,10 @@ for x in range(0, retries):
         strerror = "error"
         pass
 
-    finally:
-        if strerror:
-            print("sleeping for", sleep_time)
-            sleep(sleep_time)  # wait before trying to fetch the data again
-            sleep_time *= 2  # Implement your backoff algorithm here i.e. exponential backoff
-        else:
-            break
+    if strerror:
+        print("sleeping for", sleep_time)
+        time.sleep(sleep_time)
+        sleep_time *= 2 
+    else:
+        break
     
