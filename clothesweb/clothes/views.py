@@ -163,21 +163,16 @@ def search_results(request):
     if current_query=='':
         return redirect('/home/')
     
-    # query_split = current_query.split()  
-    # current_query_joined = "+".join(query_split)  
     url = 'http://exp:8000/search/'+current_query
-    print(url)
     req = urllib.request.Request(url)
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
     if resp['ok']:
-    # if resp!={}:
         search_list = resp['listings']
-        # if resp['ok']:
-        return render(request, 'search.html', {'listings':search_list })
+        return render(request, 'search.html', {'listings':search_list, 'query':current_query})
     else:
+        messages.warning(request, resp['message'])
         return redirect('home')
-        # return render('home.html', {'listings':{ }})
 
 
 def create_account(request):

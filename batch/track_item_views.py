@@ -11,7 +11,6 @@ for x in range(0, retries):
     try:
         consumer = KafkaConsumer('track-views-topic', group_id='listing-logger', bootstrap_servers=['kafka:9092'])
         print("consumer", consumer)
-    
         while (True):
             f = open("view_log.txt", "a")
             for message in consumer:
