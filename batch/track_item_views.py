@@ -1,4 +1,6 @@
 # pulls item viewing messages from Kafka and appends them to a logs
+
+# TO DO : make sure it actually writes to the log file?
 import json, time
 from kafka import KafkaConsumer
 

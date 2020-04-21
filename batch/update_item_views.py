@@ -1,4 +1,6 @@
 # that periodically parses the log and updates the view counts in ES
+
+## TO DO : make this update "periodically"
 from elasticsearch import Elasticsearch
 import json, time
 

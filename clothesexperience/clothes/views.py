@@ -12,7 +12,7 @@ from elasticsearch import Elasticsearch
 import time
 
 sleep_time = 2
-retries = 4
+retries = 5
 for x in range(0, retries):  
     try:
         producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
@@ -23,7 +23,7 @@ for x in range(0, retries):
         pass
 
     if strerror:
-        print("sleeping for", sleep_time)
+        print("exp: sleeping for", sleep_time)
         time.sleep(sleep_time)
         sleep_time *= 2
     else:
@@ -119,6 +119,19 @@ def get_searchResults(request, query):
         res = search['hits']['hits']
         listings = []
         print(res)
+        for x in res:
+            listings.append({'listing':x['_source'], 'score':x['_score']})
+        print(listings)
+        return JsonResponse(data={'ok':True, 'listings':listings})
+    else:
+        return JsonResponse(data={'ok':False, 'message': 'Failed to connect to search engine. Please try again at another time.'})
+
+def get_most_popular(request, query):
+    if es:
+        # score based off of visits, sorted is descending order, top 6
+        search = es.search(index='listing_index', body={'sort': [{'_score': 'desc'}],'size': 6,'query': {'function_score': {'query': {'query_string': {'query': query}},'field_value_factor': {'field': 'visits','modifier': 'log1p','missing': 0}}}})
+        res = search['hits']['hits']
+        listings = []
         for x in res:
             listings.append({'listing':x['_source'], 'score':x['_score']})
         print(listings)

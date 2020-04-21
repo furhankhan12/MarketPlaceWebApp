@@ -26,6 +26,7 @@ urlpatterns = [
     path('listings/new', views.new_listing, name='new_listing'),
     
     path('search/<slug:query>',views.get_searchResults,name='search'),
+    path('search/popular/<slug:query>',views.get_most_popular,name='search_popular'),
 
     path('users/signup',views.create_account, name='create_account'),
     path('users/login',views.login,name = 'login'),

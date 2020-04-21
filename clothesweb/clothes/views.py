@@ -174,11 +174,25 @@ def search_results(request):
     resp = json.loads(resp_json)
     if resp['ok']:
         search_list = resp['listings']
-        return render(request, 'search.html', {'listings':search_list, 'query':current_query})
+        return render(request, 'search.html', {'listings':search_list, 'query':current_query, 'popular':False})
     else:
         messages.warning(request, resp['message'])
         return redirect('home')
 
+def get_most_popular(request, query):
+    if query=='':
+        return redirect('/home/')
+    
+    url = 'http://exp:8000/search/popular/'+query
+    req = urllib.request.Request(url)
+    resp_json = urllib.request.urlopen(req).read().decode('utf-8')
+    resp = json.loads(resp_json)
+    if resp['ok']:
+        search_list = resp['listings']
+        return render(request, 'search.html', {'listings':search_list, 'query':query, 'popular':True})
+    else:
+        messages.warning(request, resp['message'])
+        return redirect('home')
 
 def create_account(request):
     authenticated = False
