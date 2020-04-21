@@ -8,13 +8,13 @@ for x in range(0, retries):
     try:
         consumer = KafkaConsumer('track-views-topic', group_id='listing-logger', bootstrap_servers=['kafka:9092'])
         while (True):
-            f = open("view_log.txt", "a")
             for message in consumer:
+                f = open("view_log.txt", "a")
                 new_click = json.loads((message.value).decode('utf-8'))
                 to_write = str(new_click['user_id']) + " " + str(new_click['item_id'])
                 print(to_write)
                 f.write(str(to_write)+'\n')
-            f.close()
+                f.close()
         strerror = None
 
     except:
@@ -22,7 +22,7 @@ for x in range(0, retries):
         pass
 
     if strerror:
-        print("sleeping for", sleep_time)
+        print("track: sleeping for", sleep_time)
         time.sleep(sleep_time)
         sleep_time *= 2 
     else:

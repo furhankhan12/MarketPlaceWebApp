@@ -118,11 +118,14 @@ def get_searchResults(request, query):
         # list of results
         res = search['hits']['hits']
         listings = []
+        print(res)
         for x in res:
-            listings.append(x['_source'])
+            listings.append({'listing':x['_source'], 'score':x['_score']})
+        print(listings)
         return JsonResponse(data={'ok':True, 'listings':listings})
     else:
         return JsonResponse(data={'ok':False, 'message': 'Failed to connect to search engine. Please try again at another time.'})
+
 
 ## USERS
 def get_user(request):

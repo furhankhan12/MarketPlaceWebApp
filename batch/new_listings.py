@@ -25,7 +25,7 @@ for x in range(0, retries):
         pass
 
     if strerror:
-        print("sleeping for", sleep_time)
+        print("new: sleeping for", sleep_time)
         time.sleep(sleep_time)
         sleep_time *= 2  
     else:

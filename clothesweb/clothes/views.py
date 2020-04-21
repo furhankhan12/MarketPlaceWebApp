@@ -164,7 +164,7 @@ def new_listing(request):
     return render(request, 'new_listing.html', {'form': form})
 
 def search_results(request):
-    current_query = str(request.GET['Query'])
+    current_query = str(request.GET['q'])
     if current_query=='':
         return redirect('/home/')
     
