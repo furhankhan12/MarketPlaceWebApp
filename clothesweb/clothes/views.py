@@ -17,6 +17,7 @@ from django.shortcuts import get_object_or_404
 
 def get_user(request):
     if request.COOKIES.get('auth'):
+        print("THERE IS NO AUTH")
         auth = request.COOKIES.get('auth') 
         auth_data = [
             ('auth',auth),
@@ -33,6 +34,7 @@ def home(request):
     listings_json = get_all_listings(request)
     listings_list = listings_json['listings']
     user_info = get_user(request)
+    print(user_info)
     if listings_json['ok'] and user_info['ok']:
         return render(request, 'home.html', {'listings':listings_list, 'user_info':user_info['user']})
 
@@ -167,14 +169,16 @@ def search_results(request):
     current_query = str(request.GET['q'])
     if current_query=='':
         return redirect('/home/')
-    
-    url = 'http://exp:8000/search/'+current_query
+    new_query = current_query.replace(" ","___")
+    url_query = urllib.parse.quote(new_query)
+    print(url_query)
+    url = 'http://exp:8000/search/'+url_query
     req = urllib.request.Request(url)
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
     if resp['ok']:
         search_list = resp['listings']
-        return render(request, 'search.html', {'listings':search_list, 'query':current_query, 'popular':False})
+        return render(request, 'search.html', {'listings':search_list, 'query':url_query, 'popular':False})
     else:
         messages.warning(request, resp['message'])
         return redirect('home')
@@ -182,14 +186,15 @@ def search_results(request):
 def get_most_popular(request, query):
     if query=='':
         return redirect('/home/')
-    
-    url = 'http://exp:8000/search/popular/'+query
+    new_query = query.replace(" ","___")
+    url_query = urllib.parse.quote(new_query)
+    url = 'http://exp:8000/search/popular/'+url_query
     req = urllib.request.Request(url)
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
     if resp['ok']:
         search_list = resp['listings']
-        return render(request, 'search.html', {'listings':search_list, 'query':query, 'popular':True})
+        return render(request, 'search.html', {'listings':search_list, 'query':url_query, 'popular':True})
     else:
         messages.warning(request, resp['message'])
         return redirect('home')

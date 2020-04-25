@@ -391,7 +391,7 @@ def get_user(request):
             return JsonResponse(data={'ok':False,'message': 'user not found'})  
         else:
             user_dict = {'ok':True, 'user': {'firstName':user.firstName, 'lastName':user.lastName, 'emailAddress':user.emailAddress, 'id':user.id, 'username':user.username}}
-            return JsonResponse(data=user_dict)     
+            return JsonResponse(data=user_dict)  
 
 # def get_user_with_auth(request):
 #     if request.method == "POST":

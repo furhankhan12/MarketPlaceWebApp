@@ -113,8 +113,10 @@ def new_listing(request):
 
 #Filter results based on what is entered in the search bar 
 def get_searchResults(request, query):
+
     if es:
-        search = es.search(index='listing_index', body={'query': {'query_string': {'query': query}}})
+        new_query = query.replace('___',' ')
+        search = es.search(index='listing_index', body={'query': {'query_string': {'query': new_query}}})
         # list of results
         res = search['hits']['hits']
         listings = []
@@ -128,8 +130,10 @@ def get_searchResults(request, query):
 
 def get_most_popular(request, query):
     if es:
+        #3 underscores ___
+        new_query = query.replace("___"," ")
         # score based off of visits, sorted is descending order, top 6
-        search = es.search(index='listing_index', body={'sort': [{'_score': 'desc'}],'size': 6,'query': {'function_score': {'query': {'query_string': {'query': query}},'field_value_factor': {'field': 'visits','modifier': 'log1p','missing': 0}}}})
+        search = es.search(index='listing_index', body={'sort': [{'_score': 'desc'}],'size': 6,'query': {'function_score': {'query': {'query_string': {'query': new_query}},'field_value_factor': {'field': 'visits','modifier': 'log1p','missing': 0}}}})
         res = search['hits']['hits']
         listings = []
         for x in res:
@@ -153,6 +157,8 @@ def get_user(request):
             resp_json = json.loads(f.read().decode('utf-8'))  
         if resp_json['ok']:
             return JsonResponse(data=resp_json)
+        else:
+            return JsonResponse(data={'ok':False, 'message': 'invalid request'}) 
     else:
         return JsonResponse(data={'ok':False, 'message': 'invalid request'}) 
 
