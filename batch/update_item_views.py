@@ -41,6 +41,10 @@ while True:
             # print(line.split()[1])
         # f.close()
         for item in counts:
-            es.update(index='listing_index', doc_type='listing', id=item, body={ 'script' : {'source':'ctx._source.visits=params.count', 'params':{'count':counts[item] }}})
+            try:
+                es.update(index='listing_index', doc_type='listing', id=item, body={ 'script' : {'source':'ctx._source.visits=params.count', 'params':{'count':counts[item] }}})
+            except Exception as e:
+                if 'NotFoundError' in str(e):
+                    pass
         # open('view_log.txt', 'w').close() #clear the file 
         

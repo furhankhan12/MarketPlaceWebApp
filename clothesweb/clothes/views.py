@@ -17,7 +17,7 @@ from django.shortcuts import get_object_or_404
 
 def get_user(request):
     if request.COOKIES.get('auth'):
-        print("THERE IS NO AUTH")
+        
         auth = request.COOKIES.get('auth') 
         auth_data = [
             ('auth',auth),
