@@ -6,7 +6,8 @@ import json, time
 
 time.sleep(60)
 sleep_time = 3
-retries = 20
+retries = 5
+time.sleep(60)
 for x in range(0, retries):  
     try:
         es = Elasticsearch(['es'])
