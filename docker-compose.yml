@@ -62,14 +62,36 @@ services:
     ports:
         - "9200:9200"
 
-  batch:
+  batch_newListing:
     image: tp33/django
-    container_name: batch
+    container_name: batch_newListing
     networks:
         - batch_network
     volumes:
       - ./batch:/app
-    command: python3 new_listings.py & python3 track_item_views.py & python3 update_item_views.py
+    command: bash -c "python3 new_listings.py" 
+
+  batch_trackViews:
+    image: tp33/django
+    container_name: batch_trackViews
+    networks:
+        - batch_network
+    volumes:
+      - ./batch:/app
+    command: bash -c "python3 track_item_views.py"
+
+  # batch_updateViews:
+  #   image: tp33/django
+  #   container_name: batch_updateViews
+  #   networks:
+  #       - batch_network
+  #   volumes:
+  #     - ./batch:/app
+  #   command: python3 update_item_views.py
+
+  
+
+
 
 networks:
   batch_network:

@@ -4,16 +4,16 @@
 
 <div style="text-align: center; padding-top:24px;">
   {% if not listings %}
-  <h5 class="text-center">No listings match the query "{{ query }}"</h5>
+  <h5 class="text-center">No listings match the query "{{ display_query }}"</h5>
   <a href="{% url 'home' %}">Return to Home Page</a>  
   {% else %}
     {% if not popular %}
-      <h5 class="text-center">Results matching the query "{{ query }}"</h5>
+      <h5 class="text-center">Results matching the query "{{ display_query }}"</h5>
       <button class="btn btn-outline-success btn-sm pt-6"> 
         <a style="text-decoration: none; color:black" href="{% url 'search_popular' query=query %}"> See most popular items for this search </a>
       </button>
     {% else %}
-      <h5 class="text-center">Popular results matching the query "{{ query }}"</h5>
+      <h5 class="text-center">Popular results matching the query "{{ display_query }}"</h5>
     {% endif %}
   <div class="pb-3 pt-2">
     {% for item in listings %}

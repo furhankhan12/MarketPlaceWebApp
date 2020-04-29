@@ -45,7 +45,9 @@ def get_listing(request, listing_id):
     if resp['ok'] and user_id and producer:
         # producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
         listing = {'user_id': user_id, 'item_id':str(listing_id)}
+        # print("HAVE A NEW ITEM TO TRACK")
         producer.send('track-views-topic', json.dumps(listing).encode('utf-8'))
+        print("HAVE A NEW ITEM TO TRACK")
     if resp['ok']:
         return JsonResponse(resp)
 
@@ -133,7 +135,7 @@ def get_most_popular(request, query):
         #3 underscores ___
         new_query = query.replace("___"," ")
         # score based off of visits, sorted is descending order, top 6
-        search = es.search(index='listing_index', body={'sort': [{'_score': 'desc'}],'size': 6,'query': {'function_score': {'query': {'query_string': {'query': new_query}},'field_value_factor': {'field': 'visits','modifier': 'log1p','missing': 0}}}})
+        search = es.search(index='listing_index', body={'sort': [{'visits': 'desc'}],'size': 6,'query': {'function_score': {'query': {'query_string': {'query': new_query}},'field_value_factor': {'field': 'visits','modifier': 'log1p','missing': 0}}}})
         res = search['hits']['hits']
         listings = []
         for x in res:

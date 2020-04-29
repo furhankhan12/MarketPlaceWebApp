@@ -178,7 +178,7 @@ def search_results(request):
     resp = json.loads(resp_json)
     if resp['ok']:
         search_list = resp['listings']
-        return render(request, 'search.html', {'listings':search_list, 'query':url_query, 'popular':False})
+        return render(request, 'search.html', {'listings':search_list, 'query':url_query, 'display_query':current_query, 'popular':False})
     else:
         messages.warning(request, resp['message'])
         return redirect('home')
@@ -192,9 +192,10 @@ def get_most_popular(request, query):
     req = urllib.request.Request(url)
     resp_json = urllib.request.urlopen(req).read().decode('utf-8')
     resp = json.loads(resp_json)
+    display_query = query.replace("___"," ") #3 underscores
     if resp['ok']:
         search_list = resp['listings']
-        return render(request, 'search.html', {'listings':search_list, 'query':url_query, 'popular':True})
+        return render(request, 'search.html', {'listings':search_list, 'query':url_query,'display_query':display_query, 'popular':True})
     else:
         messages.warning(request, resp['message'])
         return redirect('home')
@@ -271,6 +272,11 @@ def logout(request):
     with urllib.request.urlopen(req,data=data) as f:
         resp_json = json.loads(f.read().decode('utf-8'))  
     if resp_json['ok']:
+        if 'Invalid auth token' in resp_json['message']:
+            response = HttpResponseRedirect('/home')
+            response.delete_cookie('auth')
+            messages.warning(request, resp_json['message'])
+            return response
         response = HttpResponseRedirect('/home')
         response.delete_cookie('auth')
         messages.success(request, resp_json['message'])

@@ -2,14 +2,14 @@
 import json, time
 from kafka import KafkaConsumer
 from elasticsearch import Elasticsearch
-
-sleep_time = 2
+sleep_time = 3
 retries = 5
+time.sleep(60)
 for x in range(0, retries):  
     try:
         consumer = KafkaConsumer('new-listings-topic', group_id='listing-indexer', bootstrap_servers=['kafka:9092'])
         es = Elasticsearch(['es'])
-
+        print("NEW LISTINGS IS READY")
         while (True):
             for message in consumer:
                 new_listing = json.loads((message.value).decode('utf-8'))
@@ -20,14 +20,14 @@ for x in range(0, retries):
             es.indices.refresh(index="listing_index")
         
         strerror = None
-    except:
+    except Exception as e:
         strerror = "error"
+        print(e)
         pass
 
     if strerror:
         print("new: sleeping for", sleep_time)
+        print("In new listings")
         time.sleep(sleep_time)
         sleep_time *= 2  
-    else:
-        break
     

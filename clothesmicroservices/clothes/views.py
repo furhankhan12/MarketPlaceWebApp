@@ -284,6 +284,8 @@ def logout(request):
         auth_token = request.POST.get('auth')
         auth = Authenticator.objects.filter(authenticator=auth_token).first()
         if not auth:
+            if auth_token!=None:
+                return JsonResponse(data={'ok':True, 'message': 'Invalid auth token detected... Token has been deleted'})
             return JsonResponse(data={'ok':False, 'message': 'Not logged in', 'logout status': 'failure'})
         else: 
             auth.delete()
