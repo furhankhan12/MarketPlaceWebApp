@@ -1,15 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <div style="text-align: center; padding-top:24px;">
-  {% if listings %}
-    {% for item in listings %}
-      <li>
-        <a href={% url 'listing' listing_id=item.id %}>{{ item.name }}</a>
-      </li>
-    {% endfor %}
+  {% if not listings %}
+  <h5 class="text-center">No listings match the query "{{ display_query }}"</h5>
+  <a href="{% url 'home' %}">Return to Home Page</a>  
+  {% else %}
+    {% if not popular %}
+      <h5 class="text-center">Results matching the query "{{ display_query }}"</h5>
+      <button class="btn btn-outline-success btn-sm pt-6"> 
+        <a style="text-decoration: none; color:black" href="{% url 'search_popular' query=query %}"> See most popular items for this search </a>
+      </button>
     {% else %}
-  <h1> No listings found</h1> 
-  {% endif %} 
-</div>
+      <h5 class="text-center">Popular results matching the query "{{ display_query }}"</h5>
+    {% endif %}
+  <div class="pb-3 pt-2">
+    {% for item in listings %}
+      <div class="col-sm-3 pt-3 pb-3" style="display:inline-block;">
+        <div class="card h-100 text-center">
+          <img class="card-img-top" src="http://placehold.it/500x325" alt="">
+          <div class="card-body">
+            <h4 class="card-title">{{ item.listing.name }}</h4>
+            <p class="card-text">${{item.listing.price}}</p>
+          </div>
+          <div class="card-footer">
+            <a href="{% url 'listing' listing_id=item.listing.id %}" class="btn btn-dark">Details</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 {% endblock %}
+
+
