@@ -15,17 +15,17 @@ for x in range(0, retries):
         print("TRACK VIEWS IS READY")
         while (True):
             for message in consumer:
-                # f = open("view_log.txt", "a")
+                f = open("view_log.txt", "a")
                 new_click = json.loads((message.value).decode('utf-8'))
                 print("INSIDE THE TRACKER")
                 print(new_click)
                 item = int(str(new_click['item_id']))
-                # to_write = str(new_click['user_id']) + " " + str(new_click['item_id'])
+                to_write = str(new_click['user_id']) + " " + str(new_click['item_id'])
                 # print(to_write)
-                # f.write(str(to_write)+'\n')
-                # f.close()
-                es.update(index='listing_index', doc_type='listing', id=item, body={ 'script' : 'ctx._source.visits += 1'})
-        strerror = None
+                f.write(str(to_write)+'\n')
+                f.close()
+                # es.update(index='listing_index', doc_type='listing', id=item, body={ 'script' : 'ctx._source.visits += 1'})
+        # strerror = None
 
     except Exception as e:
         print(e)

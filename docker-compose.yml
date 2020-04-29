@@ -80,14 +80,14 @@ services:
       - ./batch:/app
     command: bash -c "python3 track_item_views.py"
 
-  # batch_updateViews:
-  #   image: tp33/django
-  #   container_name: batch_updateViews
-  #   networks:
-  #       - batch_network
-  #   volumes:
-  #     - ./batch:/app
-  #   command: python3 update_item_views.py
+  batch_updateViews:
+    image: tp33/django
+    container_name: batch_updateViews
+    networks:
+        - batch_network
+    volumes:
+      - ./batch:/app
+    command: python3 update_item_views.py
 
   
 

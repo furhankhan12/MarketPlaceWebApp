@@ -19,15 +19,13 @@ for x in range(0, retries):
 
             es.indices.refresh(index="listing_index")
         
-        strerror = None
     except Exception as e:
-        strerror = "error"
         print(e)
-        pass
-
-    if strerror:
         print("new: sleeping for", sleep_time)
         print("In new listings")
         time.sleep(sleep_time)
-        sleep_time *= 2  
-    
+        sleep_time *= 2
+        pass
+
+    # if e:
+        

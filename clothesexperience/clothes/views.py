@@ -83,6 +83,8 @@ def delete_listing(request, listing_id):
         req = urllib.request.Request('http://models:8000/api/v1/listings/' + str(listing_id) + '/delete')
         with urllib.request.urlopen(req,data=data) as f:
             resp_json = json.loads(f.read().decode('utf-8'))  
+        if es:
+            es.delete('listing_index', doc_type='listing',id=listing_id)
         return JsonResponse(data = resp_json)
     else:
         return JsonResponse(data={'ok':False, 'message': 'invalid request'})        
